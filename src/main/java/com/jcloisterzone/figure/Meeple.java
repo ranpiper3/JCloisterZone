@@ -4,7 +4,9 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Structure;
+import com.jcloisterzone.game.capability.GermanMonasteriesCapability;
 import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 

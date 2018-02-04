@@ -16,6 +16,8 @@ import io.vavr.collection.Vector;
 
 public class GermanMonasteriesCapability extends Capability<Void> {
 
+    public static String ROLE_ABBOT = "abbot";
+
     @Override
     public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
