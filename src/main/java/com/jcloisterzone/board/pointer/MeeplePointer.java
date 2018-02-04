@@ -4,6 +4,7 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 
 import io.vavr.Tuple2;
 
@@ -27,14 +28,21 @@ public class MeeplePointer implements BoardPointer {
         this(new FeaturePointer(position, location), meepleId);
     }
 
+    @Deprecated // probably no longer used when DeployedMeeple introduced
     public MeeplePointer(Tuple2<? extends Meeple, FeaturePointer> t) {
         this(t._2, t._1.getId());
     }
 
+    public MeeplePointer(DeployedMeeple deployedMeeple) {
+        this(deployedMeeple.getFeaturePointer(), deployedMeeple.getMeeple().getId());
+    }
+
+    @Override
     public FeaturePointer asFeaturePointer() {
         return featurePointer;
     }
 
+    @Override
     public Position getPosition() {
         return featurePointer.getPosition();
     }

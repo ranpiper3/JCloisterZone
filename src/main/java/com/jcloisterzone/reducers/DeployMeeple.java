@@ -6,6 +6,7 @@ import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.feature.Structure;
 import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.LinkedHashMap;
@@ -32,10 +33,11 @@ public class DeployMeeple implements Reducer {
             throw new IllegalArgumentException(check.error);
         }
 
-        LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
-        state = state.setDeployedMeeples(deployedMeeples.put(meeple, fp));
+        LinkedHashMap<Meeple, DeployedMeeple> deployedMeeples = state.getDeployedMeeples();
+        DeployedMeeple dm = new DeployedMeeple(meeple, fp);
+        state = state.setDeployedMeeples(deployedMeeples.put(meeple, dm));
         state = state.appendEvent(
-            new MeepleDeployed(PlayEventMeta.createWithActivePlayer(state), meeple, fp)
+            new MeepleDeployed(PlayEventMeta.createWithActivePlayer(state), dm)
         );
         return state;
     }

@@ -11,9 +11,9 @@ import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.ScoreFeatureReducer;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
@@ -78,11 +78,11 @@ public abstract class ScoreFeature implements ScoreFeatureReducer {
     public GameState apply(GameState state) {
         owners = feature.getOwners(state);
         if (owners.isEmpty()) {
-            Stream<Tuple2<Follower, FeaturePointer>> followers = feature.getFollowers2(state);
+            Stream<DeployedMeeple> followers = feature.getDeployedFollowers(state);
             if (!followers.isEmpty()) {
-                for (Seq<Tuple2<Follower, FeaturePointer>> l : followers.groupBy(t -> t._1.getPlayer()).values()) {
-                    Tuple2<Follower, FeaturePointer> t = l.get();
-                    ScoreEvent scoreEvent = new ScoreEvent(0, feature.getPointCategory(), isFinal, t._2, t._1);
+                for (Seq<DeployedMeeple> l : followers.groupBy(dm -> dm.getMeeple().getPlayer()).values()) {
+                    DeployedMeeple dm = l.get();
+                    ScoreEvent scoreEvent = new ScoreEvent(0, feature.getPointCategory(), isFinal, dm.getFeaturePointer(), dm.getMeeple());
                     state = state.appendEvent(scoreEvent);
                 }
             }
@@ -96,9 +96,9 @@ public abstract class ScoreFeature implements ScoreFeatureReducer {
             boolean onTileRule = ptr instanceof Position;
             FeaturePointer fairyFp = ptr.asFeaturePointer();
 
-            for (Tuple2<Follower, FeaturePointer> t : feature.getFollowers2(state)) {
-                Follower m = t._1;
-                if (!t._2.equals(fairyFp)) continue;
+            for (DeployedMeeple dm : feature.getDeployedFollowers(state)) {
+                Follower m = (Follower) dm.getMeeple();
+                if (!dm.getFeaturePointer().equals(fairyFp)) continue;
 
                 if (!onTileRule) {
                     if (!((MeeplePointer) ptr).getMeepleId().equals(m.getId())) continue;

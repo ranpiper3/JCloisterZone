@@ -33,6 +33,7 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 @Immutable
 public class GameState implements ActionsMixin, BoardMixin,
@@ -56,7 +57,7 @@ public class GameState implements ActionsMixin, BoardMixin,
     private final Map<FeaturePointer, Feature> featureMap;
 
     private final NeutralFiguresState neutralFigures;
-    private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
+    private final LinkedHashMap<Meeple, DeployedMeeple> deployedMeeples;
 
     //Flags for marking once per turn actions (like princess, portal, ransom ...)
     private final Set<Flag> flags;
@@ -101,7 +102,7 @@ public class GameState implements ActionsMixin, BoardMixin,
             LinkedHashMap<Position, PlacedTile> placedTiles,
             List<Tile> discardedTiles, Map<FeaturePointer, Feature> featureMap,
             NeutralFiguresState neutralFigures,
-            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
+            LinkedHashMap<Meeple, DeployedMeeple>  deployedMeeples,
             ActionsState playerActions,
             Set<Flag> flags,
             Queue<PlayEvent> events,
@@ -232,7 +233,7 @@ public class GameState implements ActionsMixin, BoardMixin,
         return setNeutralFigures(fn.apply(neutralFigures));
     }
 
-    public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
+    public GameState setDeployedMeeples(LinkedHashMap<Meeple, DeployedMeeple>  deployedMeeples) {
         if (deployedMeeples == this.deployedMeeples) return this;
         return new GameState(
             rules, capabilities, players,
@@ -352,8 +353,14 @@ public class GameState implements ActionsMixin, BoardMixin,
         return neutralFigures;
     }
 
-    public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
+    // TODO rename to getDeployedMeeplesMap
+    public LinkedHashMap<Meeple, DeployedMeeple> getDeployedMeeples() {
         return deployedMeeples;
+    }
+
+    // TODO rename to getDeployedMeeples
+    public Stream<DeployedMeeple> getDeployedMeeplesX() {
+        return Stream.ofAll(getDeployedMeeples().values());
     }
 
     @Override

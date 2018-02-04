@@ -20,6 +20,7 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.RandomGenerator;
 import com.jcloisterzone.game.capability.CornCircleCapability;
 import com.jcloisterzone.game.state.ActionsState;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.DeployMeeple;
@@ -31,7 +32,6 @@ import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage.ReturnMeepleSource;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
@@ -92,10 +92,10 @@ public class CornCirclePhase extends Phase {
         CornCircleOption option = state.getCapabilityModel(CornCircleCapability.class);
         Class<? extends Feature> cornType = getCornType(state);
 
-        Stream<Tuple2<Meeple, FeaturePointer>> followers = Stream.ofAll(state.getDeployedMeeples())
-            .filter(t -> t._1 instanceof Follower)
-            .filter(t -> t._1.getPlayer().equals(player))
-            .filter(t -> cornType.isInstance(state.getFeature(t._2)));
+        Stream<DeployedMeeple> followers = state.getDeployedMeeplesX()
+            .filter(dm -> dm.getMeeple() instanceof Follower)
+            .filter(dm -> dm.getMeeple().getPlayer().equals(player))
+            .filter(dm -> cornType.isInstance(state.getFeature(dm.getFeaturePointer())));
 
         if (followers.isEmpty()) {
             return nextCornPlayer(state, player);
@@ -118,7 +118,7 @@ public class CornCirclePhase extends Phase {
                 return nextCornPlayer(state, player);
             }
 
-            Set<FeaturePointer> deployOptions = followers.map(Tuple2::_2).toSet();
+            Set<FeaturePointer> deployOptions = followers.map(DeployedMeeple::getFeaturePointer).toSet();
             actions = availMeeples.map(meeple ->
                 new MeepleAction(meeple, deployOptions)
             );

@@ -18,6 +18,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.RandomGenerator;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.state.ActionsState;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.DeployMeeple;
@@ -119,9 +120,9 @@ public abstract class AbstractCocScoringPhase extends Phase {
                     return List.empty();
                 }
 
-                return state.getDeployedMeeples()
-                    .filter(t -> t._2.getLocation() == quarter)   // is deployed on quarter
-                    .map(Tuple2::_1)
+                return state.getDeployedMeeplesX()
+                    .filter(dm -> dm.getFeaturePointer().getLocation() == quarter)   // is deployed on quarter
+                    .map(DeployedMeeple::getMeeple)
                     .filter(m -> m.getPlayer().equals(player))    // and is owned by active player
                     .groupBy(Object::getClass)                    // for each meeple class create action ...
                     .values()

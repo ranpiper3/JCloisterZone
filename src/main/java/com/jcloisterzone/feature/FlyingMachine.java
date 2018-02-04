@@ -5,6 +5,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
@@ -36,7 +37,7 @@ public class FlyingMachine implements Structure {
     }
 
     @Override
-    public Stream<Tuple2<Meeple, FeaturePointer>> getMeeples2(GameState state) {
+    public Stream<Tuple2<Meeple, DeployedMeeple>> getMeeples2(GameState state) {
         return Stream.empty();
     }
 

@@ -9,9 +9,9 @@ import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 
@@ -37,14 +37,14 @@ public class UndeployMeeples implements Reducer {
         ArrayList<PlayEvent> events = new ArrayList<>();
         PlayEventMeta eventMeta = PlayEventMeta.createWithoutPlayer();
 
-        for (Tuple2<Meeple, FeaturePointer> t : state
-                .getDeployedMeeples()
-                .filter(t -> fps.contains(t._2))
-                .filter(t -> !(t._1 instanceof Barn))
+        for (DeployedMeeple dm : state
+                .getDeployedMeeplesX()
+                .filter(dm -> fps.contains(dm.getFeaturePointer()))
+                .filter(dm -> !(dm.getMeeple() instanceof Barn))
             ) {
-            meeples.add(t._1);
+            meeples.add(dm.getMeeple());
             events.add(
-                new MeepleReturned(eventMeta, t._1, t._2, forced)
+                new MeepleReturned(eventMeta, dm, forced)
             );
         }
         state = state.setDeployedMeeples(

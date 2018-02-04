@@ -19,7 +19,6 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.CastleCreated;
 import com.jcloisterzone.event.play.DoubleTurnEvent;
@@ -41,6 +40,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.eventpanel.EventItem;
@@ -136,12 +136,12 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processMeepleDeployedEvent(PlayEvent _ev) {
         MeepleDeployed ev = (MeepleDeployed) _ev;
-        return getMeepleItem(ev, ev.getMeeple(), ev.getPointer().asFeaturePointer());
+        return getMeepleItem(ev, ev.getDeployedMeeple());
     }
 
     private EventItem processFollowerCapturedEvent(PlayEvent _ev) {
         FollowerCaptured ev = (FollowerCaptured) _ev;
-        ImageEventItem item = getMeepleItem(ev, ev.getFollower(), ev.getFrom().asFeaturePointer());
+        ImageEventItem item = getMeepleItem(ev, ev.getCapturedFollower());
         item.setDrawCross(true);
         return item;
     }
@@ -151,7 +151,7 @@ public class GameEventsPanel extends JPanel {
         if (!ev.isForced()) {
             return null;
         }
-        ImageEventItem item = getMeepleItem(ev, ev.getMeeple(), ev.getFrom().asFeaturePointer());
+        ImageEventItem item = getMeepleItem(ev, ev.getReturnedMeeple());
         item.setDrawCross(true);
         return item;
     }
@@ -255,13 +255,14 @@ public class GameEventsPanel extends JPanel {
         return item;
     }
 
-    private ImageEventItem getMeepleItem(PlayEvent ev, Meeple meeple, FeaturePointer fp) {
+    private ImageEventItem getMeepleItem(PlayEvent ev, DeployedMeeple deployedMeeple) {
+        Meeple meeple = deployedMeeple.getMeeple();
         Image img = rm.getLayeredImage(new LayeredImageDescriptor(meeple.getClass(), meeple.getPlayer().getColors().getMeepleColor()));
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img);
         item.setPadding(2);
 
-        Feature feature = state.getFeature(fp);
+        Feature feature = state.getFeature(deployedMeeple.getFeaturePointer());
         item.setHighlightedFeature(feature);
         return item;
     }

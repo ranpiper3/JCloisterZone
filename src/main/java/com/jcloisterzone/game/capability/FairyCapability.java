@@ -5,16 +5,17 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.FairyNextToAction;
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Rule;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
-import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 @Immutable
 public class FairyCapability extends Capability<Void> {
@@ -35,21 +36,23 @@ public class FairyCapability extends Capability<Void> {
         Player activePlayer = state.getPlayerActions().getPlayer();
 
 
-        LinkedHashMap<Follower, FeaturePointer> followers =
-            state.getDeployedMeeples()
-                .filter((m, fp) -> (m instanceof Follower) && m.getPlayer().equals(activePlayer))
-                .mapKeys(m -> (Follower) m);
+        Stream<DeployedMeeple> followers =
+            state.getDeployedMeeplesX()
+                .filter(dm -> {
+                   Meeple m = dm.getMeeple();
+                   return (m instanceof Follower) && m.getPlayer().equals(activePlayer);
+                });
 
         Fairy fairy = state.getNeutralFigures().getFairy();
 
         if (fairyOnTile) {
-            Set<Position> options = followers.values().map(fp -> fp.getPosition()).toSet();
+            Set<Position> options = followers.map(dm -> dm.getFeaturePointer().getPosition()).toSet();
             if (options.isEmpty()) {
                 return state;
             }
             return state.appendAction(new FairyOnTileAction(fairy.getId(), options));
         } else {
-            Set<MeeplePointer> options = followers.map(t -> new MeeplePointer(t)).toSet();
+            Set<MeeplePointer> options = followers.map(MeeplePointer::new).toSet();
             if (options.isEmpty()) {
                 return state;
             }

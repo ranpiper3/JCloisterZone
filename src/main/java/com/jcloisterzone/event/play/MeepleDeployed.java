@@ -1,32 +1,30 @@
 package com.jcloisterzone.event.play;
 
 import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 
 public class MeepleDeployed extends PlayEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private Meeple meeple;
-    private BoardPointer ptr;
+    private DeployedMeeple deployedMeeple;
 
-    public MeepleDeployed(PlayEventMeta metadata, Meeple meeple, BoardPointer ptr) {
+    public MeepleDeployed(PlayEventMeta metadata, DeployedMeeple deployedMeeple) {
         super(metadata);
-        this.meeple = meeple;
-        this.ptr = ptr;
+        this.deployedMeeple = deployedMeeple;
+    }
+
+    public DeployedMeeple getDeployedMeeple() {
+        return deployedMeeple;
     }
 
     public Meeple getMeeple() {
-        return meeple;
-    }
-
-    public BoardPointer getPointer() {
-        return ptr;
+        return deployedMeeple.getMeeple();
     }
 
     public Location getLocation() {
-        return ptr.asFeaturePointer().getLocation();
+        return deployedMeeple.getFeaturePointer().getLocation();
     }
 
 

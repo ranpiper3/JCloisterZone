@@ -2,16 +2,14 @@ package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Barn;
-import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.ScoreFeatureReducer;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
@@ -38,18 +36,18 @@ public class ScoreFarmBarn implements ScoreFeatureReducer {
 
     @Override
     public GameState apply(GameState state) {
-        Stream<Tuple2<Special, FeaturePointer>> barns = farm.getSpecialMeeples2(state)
-            .filter(t -> t._1 instanceof Barn);
+        Stream<DeployedMeeple> barns = farm.getDeployedSpecialMeeples(state)
+            .filter(dm -> dm.getMeeple() instanceof Barn);
 
         int points = farm.getBarnPoints(state);
         PointCategory pointCategory = farm.getPointCategory();
 
-        for (Tuple2<Special, FeaturePointer> t : barns) {
-            Barn barn = (Barn) t._1;
+        for (DeployedMeeple dm : barns) {
+            Barn barn = (Barn) dm.getMeeple();
             state = (new AddPoints(barn.getPlayer(), points, pointCategory)).apply(state);
             playerPoints = playerPoints.put(barn.getPlayer(), points);
 
-            ScoreEvent scoreEvent = new ScoreEvent(points, pointCategory, isFinal, t._2, barn);
+            ScoreEvent scoreEvent = new ScoreEvent(points, pointCategory, isFinal, dm.getFeaturePointer(), barn);
             state = state.appendEvent(scoreEvent);
         }
 

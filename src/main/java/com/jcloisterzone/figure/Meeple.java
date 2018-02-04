@@ -5,6 +5,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.Structure;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
@@ -23,7 +24,11 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     @Override
     public FeaturePointer getDeployment(GameState state) {
-        return state.getDeployedMeeples().get(this).getOrNull();
+        DeployedMeeple dm = state.getDeployedMeeples().get(this).getOrNull();
+        if (dm == null) {
+            return null;
+        }
+        return dm.getFeaturePointer();
     }
 
     @Override

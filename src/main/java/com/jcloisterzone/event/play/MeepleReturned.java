@@ -1,30 +1,23 @@
 package com.jcloisterzone.event.play;
 
-import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.DeployedMeeple;
 
 public class MeepleReturned extends PlayEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private Meeple meeple;
-    private FeaturePointer from;
+    private DeployedMeeple returnedMeeple;
     /** true if meeple is returned different way than scoring feature */
     private final boolean forced;
 
-    public MeepleReturned(PlayEventMeta metadata, Meeple meeple, FeaturePointer from, boolean forced) {
+    public MeepleReturned(PlayEventMeta metadata, DeployedMeeple returnedMeeple, boolean forced) {
         super(metadata);
-        this.meeple = meeple;
-        this.from = from;
+        this.returnedMeeple = returnedMeeple;
         this.forced = forced;
     }
 
-    public Meeple getMeeple() {
-        return meeple;
-    }
-
-    public FeaturePointer getFrom() {
-        return from;
+    public DeployedMeeple getReturnedMeeple() {
+        return returnedMeeple;
     }
 
     public boolean isForced() {

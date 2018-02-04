@@ -26,6 +26,7 @@ import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
@@ -69,13 +70,13 @@ public class MeepleLayer extends AbstractGridLayer {
         HashMap<FeaturePointer, LinkedList<Figure<?>>> onFeature = new HashMap<>();
         LinkedList<Tuple2<Position, NeutralFigure<?>>> onTile = new LinkedList<>();
 
-        for (Tuple2<Meeple, FeaturePointer> t : state.getDeployedMeeples()) {
-            LinkedList<Figure<?>> list = onFeature.get(t._2);
+        for (DeployedMeeple dm : state.getDeployedMeeplesX()) {
+            LinkedList<Figure<?>> list = onFeature.get(dm.getFeaturePointer());
             if (list == null) {
                 list = new LinkedList<>();
-                onFeature.put(t._2, list);
+                onFeature.put(dm.getFeaturePointer(), list);
             }
-            list.add(t._1);
+            list.add(dm.getMeeple());
         }
 
         for (Tuple2<NeutralFigure<?>, BoardPointer> t : state.getNeutralFigures().getDeployedNeutralFigures()) {

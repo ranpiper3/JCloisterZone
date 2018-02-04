@@ -40,8 +40,8 @@ public class EscapePhase extends Phase {
             .filter(c -> c.isOccupiedBy(state, player));
 
         Function<City, Stream<MeeplePointer>> getCityFollowers = city -> {
-            return city.getFollowers2(state)
-                .filter(t -> t._1.getPlayer().equals(player))
+            return city.getDeployedFollowers(state)
+                .filter(dm -> dm.getMeeple().getPlayer().equals(player))
                 .map(MeeplePointer::new);
         };
 

@@ -24,7 +24,6 @@ import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
-import io.vavr.collection.Stream;
 
 @RequiredCapability(TowerCapability.class)
 public class TowerCapturePhase extends Phase {
@@ -44,15 +43,15 @@ public class TowerCapturePhase extends Phase {
         Position towerPosition = ptr.getPosition();
 
         Map<FeaturePointer, Feature> features = state.getFeatureMap();
-        Set<MeeplePointer> options = Stream.ofAll(state.getDeployedMeeples())
-            .filter(t -> {
-                Position pos = t._2.getPosition();
+        Set<MeeplePointer> options = state.getDeployedMeeplesX()
+            .filter(dm -> {
+                Position pos = dm.getFeaturePointer().getPosition();
                 return
-                    (t._1 instanceof Follower) &&
+                    (dm.getMeeple() instanceof Follower) &&
                     (pos.x == towerPosition.x || pos.y == towerPosition.y) &&
                     (pos.squareDistance(towerPosition) <= towerHeight);
             })
-            .filter(t -> !(features.get(t._2).get() instanceof Castle))
+            .filter(dm -> !(features.get(dm.getFeaturePointer()).get() instanceof Castle))
             .map(MeeplePointer::new)
             .toSet();
 

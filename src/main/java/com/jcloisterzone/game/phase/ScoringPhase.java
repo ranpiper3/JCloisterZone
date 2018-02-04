@@ -24,6 +24,7 @@ import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.ScoreCompletable;
@@ -72,7 +73,7 @@ public class ScoringPhase extends Phase {
         PlacedTile lastPlaced = state.getLastPlaced();
         Position pos = lastPlaced.getPosition();
 
-        Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
+        Set<DeployedMeeple> deployedWagonsBefore = getDeployedWagons(state);
 
         if (state.getCapabilities().contains(BarnCapability.class)) {
             FeaturePointer placedBarnPtr = state.getCapabilityModel(BarnCapability.class);
@@ -127,7 +128,6 @@ public class ScoringPhase extends Phase {
             }
         }
 
-
         CastleCapability castleCap = state.getCapabilities().get(CastleCapability.class);
         HashMap<Completable, ScoreFeatureReducer> completed = HashMap.ofAll(completedMutable);
         HashMap<Scoreable, ScoreFeatureReducer> scored = HashMap.narrow(completed);
@@ -142,14 +142,14 @@ public class ScoringPhase extends Phase {
         }
 
         if (!deployedWagonsBefore.isEmpty()) {
-            Set<Wagon> deployedWagonsAfter = getDeployedWagons(state).keySet();
-            Set<Wagon> returnedVagons = deployedWagonsBefore.keySet().diff(deployedWagonsAfter);
+            Set<DeployedMeeple> deployedWagonsAfter = getDeployedWagons(state);
+            Set<DeployedMeeple> returnedVagons = deployedWagonsBefore.diff(deployedWagonsAfter);
 
             Queue<Tuple2<Wagon, FeaturePointer>> model = state.getPlayers()
                 .getPlayersBeginWith(state.getTurnPlayer())
-                .map(p -> returnedVagons.find(w -> w.getPlayer().equals(p)).getOrNull())
+                .map(p -> returnedVagons.find(dm -> dm.getMeeple().getPlayer().equals(p)).getOrNull())
                 .filter(Predicates.isNotNull())
-                .map(w -> new Tuple2<>(w, deployedWagonsBefore.get(w).get()))
+                .map(dm -> new Tuple2<>((Wagon) dm.getMeeple(), dm.getFeaturePointer()))
                 .toQueue();
             state = state.setCapabilityModel(WagonCapability.class, model);
         }
@@ -158,10 +158,10 @@ public class ScoringPhase extends Phase {
         return next(state);
     }
 
-    private Map<Wagon, FeaturePointer> getDeployedWagons(GameState state) {
-        return state.getDeployedMeeples()
-           .filter((m, fp) -> m instanceof Wagon)
-           .mapKeys(m -> (Wagon) m);
+    private Set<DeployedMeeple> getDeployedWagons(GameState state) {
+        return state.getDeployedMeeplesX()
+           .filter(dm -> dm.getMeeple() instanceof Wagon)
+           .toSet();
     }
 
     private GameState scoreCompleted(GameState state, Completable completable, PlacedTile triggerBuilderForPlaced) {

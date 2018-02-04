@@ -11,13 +11,11 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
-import io.vavr.Tuple2;
-import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Stream;
 
 public class FinalScoring implements Reducer {
@@ -55,18 +53,19 @@ public class FinalScoring implements Reducer {
             state = (new ScoreCastle(castle, 0, true)).apply(state);
         }
 
-        LinkedHashMap<Meeple, FeaturePointer> abbots = state.getDeployedMeeples()
-                .filterValues(fp -> fp.getLocation() == Location.MONASTERY);
-        for (Tuple2<Meeple, FeaturePointer> t : abbots) {
-            Follower follower = (Follower) t._1;
-            Position pos = t._2.getPosition();
+        Stream<DeployedMeeple> abbots = state.getDeployedMeeplesX()
+                .filter(dm -> dm.getFeaturePointer().getLocation() == Location.MONASTERY);
+        for (DeployedMeeple deployedAbbot : abbots) {
+            Follower follower = (Follower) deployedAbbot.getMeeple();
+            FeaturePointer fp = deployedAbbot.getFeaturePointer();
+            Position pos = fp.getPosition();
             int points = getMonasteryPoints(state, pos);
 
             state = (new AddPoints(
                 follower.getPlayer(), points, PointCategory.CLOISTER
             )).apply(state);
 
-            ScoreEvent scoreEvent = new ScoreEvent(points, PointCategory.CLOISTER, true, t._2, follower);
+            ScoreEvent scoreEvent = new ScoreEvent(points, PointCategory.CLOISTER, true, fp, follower);
             state = state.appendEvent(scoreEvent);
         }
 

@@ -12,13 +12,13 @@ import com.jcloisterzone.game.RandomGenerator;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.state.ActionsState;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
@@ -107,9 +107,9 @@ public class DragonMovePhase extends Phase {
         ).apply(state);
         state = state.mapCapabilityModel(DragonCapability.class, moves -> moves.append(dragonPosition));
 
-        for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
-            Meeple m = t._1;
-            FeaturePointer fp = t._2;
+        for (DeployedMeeple dm: state.getDeployedMeeplesX()) {
+            Meeple m = dm.getMeeple();
+            FeaturePointer fp = dm.getFeaturePointer();
             if (pos.equals(fp.getPosition()) && m.canBeEatenByDragon(state)) {
                 state = (new UndeployMeeple(m, true)).apply(state);
             }

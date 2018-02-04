@@ -16,6 +16,7 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.ActionsState;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
@@ -56,9 +57,9 @@ public final class TowerCapability extends Capability<Array<List<Follower>>> {
     public GameState onActionPhaseEntered(GameState state) {
         Player player = state.getPlayerActions().getPlayer();
 
-        Set<FeaturePointer> occupiedTowers = state.getDeployedMeeples()
-            .filter(t -> t._2.getLocation().equals(Location.TOWER))
-            .map(Tuple2::_2)
+        Set<FeaturePointer> occupiedTowers = state.getDeployedMeeplesX()
+            .map(DeployedMeeple::getFeaturePointer)
+            .filter(fp -> fp.getLocation().equals(Location.TOWER))
             .toSet();
 
         Stream<Tuple2<FeaturePointer, Feature>> openTowersStream = Stream.ofAll(state.getFeatureMap())

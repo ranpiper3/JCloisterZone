@@ -12,7 +12,6 @@ import com.jcloisterzone.board.EdgePattern;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.CloisterLike;
 import com.jcloisterzone.feature.Completable;
@@ -21,9 +20,9 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.ScoreFeatureReducer;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.game.state.PlayersState;
@@ -343,10 +342,10 @@ class LegacyRanking implements GameStateRanking {
             return 0.;
         }
         double r = 0.0;
-        for (Tuple2<Meeple, FeaturePointer> t : state.getDeployedMeeples()) {
-            int dist = t._2.getPosition().squareDistance(pos);
+        for (DeployedMeeple dm : state.getDeployedMeeplesX()) {
+            int dist = dm.getFeaturePointer().getPosition().squareDistance(pos);
             if (dist > 3) continue;
-            r -= ptsforPlayer(t._1.getPlayer(), 3 - dist);
+            r -= ptsforPlayer(dm.getMeeple().getPlayer(), 3 - dist);
         }
         return r;
     }

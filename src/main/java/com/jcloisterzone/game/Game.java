@@ -17,7 +17,6 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.ai.AiPlayer;
 import com.jcloisterzone.ai.AiPlayerAdapter;
 import com.jcloisterzone.ai.ForceSupportIfSupports;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.ClockUpdateEvent;
@@ -32,6 +31,7 @@ import com.jcloisterzone.game.capability.BuilderState;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.ActionsState;
+import com.jcloisterzone.game.state.DeployedMeeple;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.GameController;
@@ -426,12 +426,12 @@ public class Game implements EventProxy {
         return phaseReducer.getPhase(state.getPhase());
     }
 
-    public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
+    public LinkedHashMap<Meeple, DeployedMeeple> getDeployedMeeples() {
         return state.getDeployedMeeples();
     }
 
     public Meeple getMeeple(MeeplePointer mp) {
-        Tuple2<Meeple, FeaturePointer> match =
+        Tuple2<Meeple, DeployedMeeple> match =
             getDeployedMeeples().find(t -> mp.match(t._1)).getOrNull();
         return match == null ? null : match._1;
     }
