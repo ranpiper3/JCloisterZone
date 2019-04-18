@@ -1,14 +1,14 @@
 package com.jcloisterzone.wsio;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.WebSocket;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
-import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,8 @@ public class WebSocketConnection implements Connection {
     private ReportingTool reportingTool;
 
     private MessageParser parser = new MessageParser();
-    private WebSocketClientImpl ws;
+    //private WebSocketClientImpl ws;
+    private WebSocket ws;
     private URI uri;
     private final MessageListener listener;
 
@@ -40,10 +41,95 @@ public class WebSocketConnection implements Connection {
     private int pingInterval = 0;
     private String maintenance;
 
+    // TODO do not use 1 executor per connection
+    // TODO executor shutdown?
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     private ScheduledFuture<?> pingFuture;
     private ScheduledFuture<?> reconnectFuture;
 
+    public class WebSocketClientImpl implements WebSocket.Listener {
+        private String username;
+        private String reconnectGameId;
+
+        public WebSocketClientImpl(String username, String reconnectGameId) {
+            this.username = username;
+            this.reconnectGameId = reconnectGameId;
+        }
+
+        @Override
+        public void onOpen(WebSocket webSocket) {
+            WebSocket.Listener.super.onOpen(webSocket);
+            ws = webSocket;
+
+            msgSequence = 1;
+            WebSocketConnection.this.send(new HelloMessage(username, clientId, secret));
+            if (reconnectGameId != null) {
+                JoinGameMessage msg = new JoinGameMessage();
+                msg.setGameId(reconnectGameId);
+                WebSocketConnection.this.send(msg);
+            }
+        }
+
+        @Override
+        public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+            cancelPing();
+            logger.info("Closed with status " + statusCode + ", reason: " + reason);
+
+            // sheduler.shutdown();
+            ws = null;
+
+            listener.onWebsocketClose(statusCode, reason, !closedByUser);
+            return null;
+        }
+
+        @Override
+        public void onError(WebSocket webSocket, Throwable error) {
+            //if (reconnectFuture != null) return; //don't handle connection refuse while trying to reconnect
+//            if (ex instanceof WebsocketNotConnectedException) {
+//                cancelPing();
+//                listener.onWebsocketClose(0, ex.getMessage(), true);
+//            } else {
+//                listener.onWebsocketError(ex);
+//            }
+            logger.error(error.getMessage(), error);
+        }
+
+        @Override
+        public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+            WebSocket.Listener.super.onText(webSocket, data, last);
+
+            String payload = data.toString();
+
+            WsMessage msg = parser.fromJson(data.toString());
+            if (logger.isInfoEnabled()) {
+                logger.info(payload);
+            }
+
+            if (msgSequence != msg.getSequenceNumber()) {
+                String errMessage = String.format("Message lost. Received #%s but expected #%s.", msg.getSequenceNumber(), msgSequence);
+                listener.onWebsocketError(new MessageLostException(errMessage));
+                //close(Connection.CLOSE_MESSAGE_LOST, errMessage);
+                ws.sendClose(Connection.CLOSE_MESSAGE_LOST, errMessage);
+                return null;
+            }
+            msgSequence = msg.getSequenceNumber() + 1;
+
+            if (msg instanceof WelcomeMessage) {
+                WelcomeMessage welcome = (WelcomeMessage) msg;
+                sessionId = welcome.getSessionId();
+                nickname = welcome.getNickname();
+                pingInterval = welcome.getPingInterval();
+                maintenance = welcome.getMaintenance();
+            }
+            schedulePing();
+            listener.onWebsocketMessage(msg);
+
+            return null;
+        }
+    }
+
+    /*
     class WebSocketClientImpl extends WebSocketClient {
         private String username;
         private String reconnectGameId;
@@ -116,15 +202,20 @@ public class WebSocketConnection implements Connection {
                 WebSocketConnection.this.send(msg);
             }
         }
-    }
+    }*/
 
     public WebSocketConnection(final String username, Config config, URI uri, MessageListener listener) {
         clientId = config.getClient_id();
         secret = config.getSecret();
         this.listener = listener;
         this.uri = uri;
-        ws = new WebSocketClientImpl(uri, username, null);
-        ws.connect();
+
+        var httpClient = HttpClient.newBuilder().executor(scheduler).build();
+        var webSocketBuilder = httpClient.newWebSocketBuilder();
+        webSocketBuilder.buildAsync(uri, new WebSocketClientImpl(username, null)).join();
+
+        //ws = new WebSocketClientImpl(uri, username, null);
+        //ws.connect();
     }
 
     @Override
@@ -132,13 +223,20 @@ public class WebSocketConnection implements Connection {
         reconnectFuture = scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                ws = new WebSocketClientImpl(uri, nickname, gameId);
-                try {
-                    if (ws.connectBlocking()) {
-                        stopReconnecting();
-                    }
-                } catch (InterruptedException e) {
-                }
+                var httpClient = HttpClient.newBuilder().executor(scheduler).build();
+                var webSocketBuilder = httpClient.newWebSocketBuilder();
+
+                //TODO timeout and not connected handling
+                ws = webSocketBuilder.buildAsync(uri, new WebSocketClientImpl(nickname, gameId)).join();
+                stopReconnecting();
+
+//                ws = new WebSocketClientImpl(uri, nickname, gameId);
+//                try {
+//                    if (ws.connectBlocking()) {
+//                        stopReconnecting();
+//                    }
+//                } catch (InterruptedException e) {
+//                }
             }
         }, 1, 4, TimeUnit.SECONDS);
     }
@@ -171,26 +269,28 @@ public class WebSocketConnection implements Connection {
 
     @Override
     public void send(WsMessage arg) {
-        if (ws.isClosed() || ws.isClosing()) {
+        if (isClosed()) {
             return;
         }
         schedulePing();
-        try {
-            ws.send(parser.toJson(arg));
-        } catch (WebsocketNotConnectedException ex) {
-            listener.onWebsocketClose(0, ex.getMessage(), true);
-        }
+        ws.sendText(parser.toJson(arg), true);
+        // TODO handle err
+//        try {
+//
+//        } catch (WebsocketNotConnectedException ex) {
+//            listener.onWebsocketClose(0, ex.getMessage(), true);
+//        }
     }
 
     @Override
     public void close() {
         closedByUser = true;
-        ws.close();
+        ws.sendClose(WebSocket.NORMAL_CLOSURE, "");
     }
 
     @Override
     public boolean isClosed() {
-        return ws.isClosed() || ws.isClosing();
+        return ws == null || ws.isInputClosed();
     }
 
     @Override
