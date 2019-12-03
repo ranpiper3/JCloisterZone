@@ -1,0 +1,53 @@
+resources:
+  SmallFollower * *:
+    layers:
+    - player-meeples/smallfollower_0.png
+    - player-meeples/smallfollower_1.png
+  SmallFollower Farm *:
+    layers:
+    - player-meeples/smallfollower_0.png
+    - player-meeples/smallfollower_1.png
+    - player-meeples/decorations/farm.png
+  SmallFollower Tower *:
+    layers:
+    - player-meeples/smallfollower_0.png
+    - player-meeples/smallfollower_1.png
+    - player-meeples/decorations/tower.png
+  BigFollower * *:
+    layers:
+    - player-meeples/bigfollower_0.png
+    - player-meeples/bigfollower_1.png
+    - player-meeples/bigfollower_2.png
+  BigFollower Tower *:
+    layers:
+      - player-meeples/bigfollower_0.png
+      - player-meeples/bigfollower_1.png
+      - player-meeples/bigfollower_2.png
+      - player-meeples/decorations/big_tower.png
+  Barn * *:
+    layers:
+      - player-meeples/barn_0.png
+  Builder * *:
+    layers:
+      - player-meeples/builer_0.png
+  Mayor * *:
+    layers:
+      - player-meeples/mayor_0.png
+  Phantom * *:
+    layers:
+      - player-meeples/phantom_0.png
+  Pig * *:
+    layers:
+    - player-meeples/pig_0.png
+  Shepherd * *:
+    layers:
+      - player-meeples/shepherd_0.png
+      - player-meeples/shepherd_1.png
+  Tunnel * *:
+    layers:
+      - player-meeples/tunnel_0.png
+      - player-meeples/tunnel_1.png
+      - player-meeples/tunnel_2.png
+  Wagon * *:
+    layers:
+      - player-meeples/wagon_0.png-
