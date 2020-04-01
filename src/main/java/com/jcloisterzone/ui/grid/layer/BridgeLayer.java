@@ -57,7 +57,7 @@ public class BridgeLayer extends AbstractGridLayer {
         return placedBridges.toList().map(bridge -> {
             Position pos = bridge.getPosition();
             Location loc = bridge.getLocation();
-            return rm.getBridgeArea(loc).translateTo(pos);
+            return getResourceManager().getBridgeArea(loc).translateTo(pos);
         });
     }
 

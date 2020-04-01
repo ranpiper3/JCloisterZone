@@ -52,7 +52,7 @@ public class TileLayer extends AbstractGridLayer {
     public void paint(Graphics2D g2) {
         //TODO nice shadow
         if (!tilePlacementLayer.isVisible()) {
-            g2.setColor(getClient().getTheme().getTileBorder());
+            g2.setColor(getTheme().getTileBorder());
             int xSize = getTileWidth(),
                 ySize = getTileHeight(),
                 thickness = xSize / 11;
@@ -68,7 +68,7 @@ public class TileLayer extends AbstractGridLayer {
             Position p = t._1;
             Tile tdef = t._2.getTile();
             Rotation rot = t._2.getRotation();
-            TileImage tileImg = rm.getTileImage(tdef.getId(), rot);
+            TileImage tileImg = getResourceManager().getTileImage(tdef.getId(), rot);
             g2.drawImage(tileImg.getImage(), getAffineTransform(tileImg, p), null);
         }
 

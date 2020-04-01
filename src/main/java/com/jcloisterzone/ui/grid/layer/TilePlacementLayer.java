@@ -90,7 +90,7 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
         if (realRotation != actionWrapper.getTileRotation()) {
             preparePreviewRotation(previewPosition);
         }
-        TileImage previewIcon = rm.getTileImage(getAction().getTile().getId(), previewRotation);
+        TileImage previewIcon = getResourceManager().getTileImage(getAction().getTile().getId(), previewRotation);
         Composite compositeBackup = g2.getComposite();
         g2.setComposite(allowedRotation ? ALLOWED_PREVIEW : DISALLOWED_PREVIEW);
         g2.drawImage(previewIcon.getImage(), getAffineTransform(previewIcon, previewPosition), null);
@@ -170,7 +170,7 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
             shift = 2,
             thickness = xSize/14;
 
-        g2.setColor(getClient().getTheme().getTilePlacementColor());
+        g2.setColor(getTheme().getTilePlacementColor());
         for (Position p : availablePositions) {
             if (previewPosition == null || !previewPosition.equals(p)) {
                 int x = getOffsetX(p)+shift, y = getOffsetY(p)+shift;
@@ -194,7 +194,7 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
 
             Position bridgePos = previewBridge.getPosition();
             Location bridgeLoc = previewBridge.getLocation();
-            FeatureArea fa = rm.getBridgeArea(bridgeLoc).translateTo(bridgePos);
+            FeatureArea fa = getResourceManager().getBridgeArea(bridgeLoc).translateTo(bridgePos);
             Area a = fa.getDisplayArea();
             g2.fill(a.createTransformedArea(getZoomScale()));
             g2.setComposite(oldComposite);

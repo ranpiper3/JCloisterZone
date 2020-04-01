@@ -25,8 +25,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class PrisonersExchangePanel extends ActionInteractionPanel<SelectPrisonerToExchangeAction> {
 
-    public PrisonersExchangePanel(Client client, GameController gc) {
-        super(client, gc);
+    public PrisonersExchangePanel(GameController gc) {
+        super(gc);
     }
 
     @Override
@@ -35,21 +35,21 @@ public class PrisonersExchangePanel extends ActionInteractionPanel<SelectPrisone
 
         SelectPrisonerToExchangeAction action = getAction();
         setOpaque(true);
-        setBackground(gc.getClient().getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));
 
         JLabel label;
 
         label = new ThemedJLabel(_tr("Prisoners exchange"));
         label.setFont(FONT_HEADER);
-        label.setForeground(gc.getClient().getTheme().getHeaderFontColor());
+        label.setForeground(getTheme().getHeaderFontColor());
         add(label, "wrap, gapbottom 10");
 
         MultiLineLabel mll = new MultiLineLabel(_tr("The captured prisoner is going to be"
             + " immediately exchanged. You can select which follower you want to exchange for."));
         add(mll, "wrap, growx, gapbottom 5");
 
-        ResourceManager rm = gc.getGameView().getClient().getResourceManager();
+        ResourceManager rm = getResourceManager();
 
         boolean isActive = state.getActivePlayer().isLocalHuman();
 

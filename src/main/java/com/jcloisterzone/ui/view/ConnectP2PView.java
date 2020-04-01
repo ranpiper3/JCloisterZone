@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
 
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.panel.BackgroundPanel;
 import com.jcloisterzone.ui.panel.ConnectGamePanel;
 
@@ -14,16 +13,12 @@ public class ConnectP2PView extends AbstractUiView {
 
     private ConnectGamePanel panel;
 
-    public ConnectP2PView(Client client) {
-        super(client);
-    }
-
     @Override
     public void show(Container pane) {
         JPanel envelope = new BackgroundPanel();
         envelope.setLayout(new GridBagLayout()); //to have centered inner panel
 
-        panel = new ConnectGamePanel(client);
+        panel = new ConnectGamePanel();
         envelope.add(panel);
 
         pane.add(envelope, BorderLayout.CENTER);

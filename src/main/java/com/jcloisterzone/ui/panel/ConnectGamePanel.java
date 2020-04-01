@@ -15,12 +15,13 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import com.jcloisterzone.ui.FxClient;
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.ConfigLoader;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.view.StartView;
@@ -28,11 +29,9 @@ import com.jcloisterzone.ui.view.StartView;
 import net.miginfocom.swing.MigLayout;
 
 
-public class ConnectGamePanel extends ThemedJPanel {
+public class ConnectGamePanel extends ThemedJPanel implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-
-    private final Client client;
 
     private JTextField hostField;
     private JTextField portField;
@@ -42,8 +41,7 @@ public class ConnectGamePanel extends ThemedJPanel {
     /**
      * Create the panel.
      */
-    public ConnectGamePanel(Client client) {
-        this.client = client;
+    public ConnectGamePanel() {
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -52,7 +50,7 @@ public class ConnectGamePanel extends ThemedJPanel {
                 message.setText(_tr("Connecting") + "...");
                 String port = portField.getText().trim();
                 if (port.equals("")) {
-                     portField.setText(ConnectGamePanel.this.client.getConfig().getPort() + "");
+                     portField.setText(getConfig().getPort() + "");
                 }
                 //(new AsyncConnect()).start();
                 saveHistory();
@@ -60,7 +58,7 @@ public class ConnectGamePanel extends ThemedJPanel {
             }
         };
 
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
 
@@ -97,7 +95,7 @@ public class ConnectGamePanel extends ThemedJPanel {
         btnBack.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConnectGamePanel.this.client.mountView(new StartView(ConnectGamePanel.this.client));
+                mountView(new StartView());
             }
         });
         add(btnBack, "cell 2 3");
@@ -108,8 +106,8 @@ public class ConnectGamePanel extends ThemedJPanel {
     }
 
     private String[] getDefaultHostPort() {
-        int port = client.getConfig().getPort() == null ? ConfigLoader.DEFAULT_PORT : client.getConfig().getPort();
-        List<String> history = client.getConfig().getConnection_history();
+        int port = getConfig().getPort() == null ? ConfigLoader.DEFAULT_PORT : getConfig().getPort();
+        List<String> history = getConfig().getConnection_history();
         if (history == null || history.isEmpty()) {
             return new String[] {"", port + ""};
         } else {
@@ -120,14 +118,14 @@ public class ConnectGamePanel extends ThemedJPanel {
     }
 
     private void saveHistory() {
-        Config cfg = client.getConfig();
+        Config cfg = getConfig();
         String record = hostField.getText().trim();
         String port = portField.getText().trim();
-        if (!port.equals(client.getConfig().getPort() + "")) {
+        if (!port.equals(cfg.getPort() + "")) {
             record = record + ":" + port;
         }
         cfg.setConnection_history(Collections.singletonList(record));
-        client.saveConfig();
+        saveConfig();
     }
 
     public void onWebsocketError(Exception ex) {
@@ -150,7 +148,7 @@ public class ConnectGamePanel extends ThemedJPanel {
             String hostname = hostField.getText().trim();
             String portStr = portField.getText().trim();
             int port = Integer.parseInt(portStr);
-            client.connect(hostname, port);
+            FxClient.getInstance().connect(hostname, port);
             return;
         } catch (NumberFormatException nfe) {
             message.setText( _tr("Invalid port number."));

@@ -43,6 +43,8 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 
+import com.jcloisterzone.ui.FxClient;
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +58,15 @@ import com.jcloisterzone.wsio.message.PostChatMessage;
 
 import net.miginfocom.swing.MigLayout;
 
-public abstract class ChatPanel extends JPanel implements WindowStateListener, UIEventListener {
+public abstract class ChatPanel extends JPanel implements UIEventListener, UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final int DISPLAY_MESSAGES_INTERVAL = 9000;
 
-    protected final Client client;
-
     private boolean hidingMode;
     private boolean forceFocus;
+    private boolean iconified;
     private boolean messageReceivedWhileIconified;
     private JTextField input;
     private JTextPane messagesPane;
@@ -73,9 +74,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
     private Timer repaintTimer;
 
 
-    public ChatPanel(final Client client) {
-        this.client = client;
-
+    public ChatPanel() {
         input = new JTextField();
         //prevent unintended focus (by window activate etc. - allow focus just on direct click)
         input.setFocusable(false);
@@ -99,7 +98,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
                 String msg = input.getText();
                 if (!"".equals(msg)) {
                     forceFocus = true; //prevent panel flashing
-                    client.getConnection().send(createPostChatMessage(msg));
+                    FxClient.getInstance().getConnection().send(createPostChatMessage(msg));
                 }
                 clean();
             }
@@ -117,11 +116,11 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
         });
 
         input.setOpaque(false);
-        input.setBackground(client.getTheme().getTransparentInputBg());
-        Color textColor = client.getTheme().getTextColor();
+        input.setBackground(getTheme().getTransparentInputBg());
+        Color textColor = getTheme().getTextColor();
         if (textColor != null) {
-            input.setForeground(client.getTheme().getTextColor());
-            input.setCaretColor(client.getTheme().getTextColor());
+            input.setForeground(getTheme().getTextColor());
+            input.setCaretColor(getTheme().getTextColor());
         }
         TextPrompt tp = new TextPrompt(_tr("Type to chat"), input);
         tp.setShow(Show.FOCUS_LOST);
@@ -133,7 +132,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
         messagesPane.setFocusable(false);
         messagesPane.setOpaque(false);
 
-        setBackground(client.getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout(""));
         add(messagesPane, "pos 10 n (100%-10) (100%-35)");
         add(input, "pos 10 (100%-35) (100%-10) (100%-10)");
@@ -160,7 +159,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
         }
 
         setBackground(new Color(0, 0, 0, 0));
-        input.setBackground(client.getTheme().getInputBg());
+        input.setBackground(getTheme().getInputBg());
         updateMessaagesVisibility();
     }
 
@@ -176,7 +175,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
     @Override
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(client.getTheme().getTransparentPanelBg());
+        g2.setColor(getTheme().getTransparentPanelBg());
         if (messagesPane.isVisible()) {
             g2.fillRect(0, 0, getWidth(), getHeight());
         } else {
@@ -203,17 +202,23 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
     private void clean() {
         input.setText("");
         input.setFocusable(false);
-        client.requestFocusInWindow();
-        client.getContentPane().repaint(); //need to repain whote grid pane
+        // TODO FX
+        // client.requestFocusInWindow();
+        // client.getContentPane().repaint(); //need to repain whote grid pane
     }
 
-    @Override
-    public void windowStateChanged(WindowEvent e) {
-        if (e.getOldState() == JFrame.ICONIFIED && messageReceivedWhileIconified) {
+    public void stageIconified() {
+        iconified = true;
+    }
+
+    public void stageMaximixed() {
+        iconified = false;
+        if (messageReceivedWhileIconified) {
             setForceFocus();
             messageReceivedWhileIconified = false;
         }
     }
+
 
     private boolean isFolded() {
         return !forceFocus && !input.hasFocus();
@@ -243,7 +248,7 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
         ReceivedChatMessage fm = createReceivedMessage(ev);
         formattedMessages.addLast(fm);
 
-        if (client.getState() == JFrame.ICONIFIED) {
+        if (iconified) {
             messageReceivedWhileIconified = true;
         } else {
             setForceFocus();
@@ -260,12 +265,12 @@ public abstract class ChatPanel extends JPanel implements WindowStateListener, U
                 doc.insertString(offset, nick + ": ", attrs);
                 offset += nick.length() + 2;
 
-                Color textColor = client.getTheme().getTextColor();
+                Color textColor = getTheme().getTextColor();
                 if (textColor == null) {
                     attrs = null;
                 } else {
                     attrs = new SimpleAttributeSet();
-                    ColorConstants.setForeground(attrs, client.getTheme().getTextColor());
+                    ColorConstants.setForeground(attrs, getTheme().getTextColor());
                 }
                 doc.insertString(offset, text + "\n", attrs);
                 offset += text.length() + 1;

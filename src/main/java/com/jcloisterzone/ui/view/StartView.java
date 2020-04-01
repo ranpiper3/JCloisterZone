@@ -16,9 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.jcloisterzone.AppUpdate;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.MenuBar;
-import com.jcloisterzone.ui.MenuBar.MenuItem;
+import com.jcloisterzone.ui.FxClient;
+import com.jcloisterzone.ui.AppMenuBar;
+import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
 import com.jcloisterzone.ui.panel.BackgroundPanel;
 import com.jcloisterzone.ui.panel.HelpPanel;
 import com.jcloisterzone.ui.panel.StartPanel;
@@ -27,26 +27,22 @@ public class StartView extends AbstractUiView {
 
     private StartPanel startPanel;
 
-    public StartView(Client client) {
-        super(client);
-    }
-
     @Override
     public void show(Container pane) {
         pane.setLayout(new BorderLayout()); //TODO should be this line in client init?
         JPanel envelope = new BackgroundPanel(new GridBagLayout());
-        envelope.setBackground(client.getTheme().getMainBg());
+        envelope.setBackground(getTheme().getMainBg());
         pane.add(envelope, BorderLayout.CENTER);
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemEnabled(MenuItem.DISCONNECT, false);
-        menu.setItemEnabled(MenuItem.SAVE, false);
-        menu.setItemEnabled(MenuItem.LOAD, true);
-        menu.setItemEnabled(MenuItem.NEW_GAME, true);
-        menu.setItemEnabled(MenuItem.PLAY_ONLINE, true);
-        menu.setItemEnabled(MenuItem.CONNECT_P2P, true);
+        AppMenuBar menu = FxClient.getInstance().getMenuBar();
+        menu.setItemEnabled(MenuItemDef.DISCONNECT, false);
+        menu.setItemEnabled(MenuItemDef.SAVE, false);
+        menu.setItemEnabled(MenuItemDef.LOAD, true);
+        menu.setItemEnabled(MenuItemDef.NEW_GAME, true);
+        menu.setItemEnabled(MenuItemDef.PLAY_ONLINE, true);
+        menu.setItemEnabled(MenuItemDef.CONNECT_P2P, true);
 
-        startPanel = new StartPanel(client);
+        startPanel = new StartPanel();
         envelope.add(startPanel);
     }
 

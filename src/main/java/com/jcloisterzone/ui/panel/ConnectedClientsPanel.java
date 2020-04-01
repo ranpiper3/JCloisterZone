@@ -16,6 +16,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants.ColorConstants;
 
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ import com.jcloisterzone.wsio.server.RemoteClient;
 
 import net.miginfocom.swing.MigLayout;
 
-public class ConnectedClientsPanel extends JPanel {
+public class ConnectedClientsPanel extends JPanel implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -33,8 +34,8 @@ public class ConnectedClientsPanel extends JPanel {
 
     private JTextPane connectedClients;
 
-    public ConnectedClientsPanel(Client client, String titleText) {
-        Color bg = client.getTheme().getPanelBg();
+    public ConnectedClientsPanel(String titleText) {
+        Color bg = getTheme().getPanelBg();
         if (bg == null) bg = Color.WHITE;
 
         setLayout(new MigLayout("ins 0, fillx", "[grow]", "[][grow]"));
@@ -49,7 +50,7 @@ public class ConnectedClientsPanel extends JPanel {
         connectedClients.setToolTipText(_tr("Connected clients"));
         connectedClients.setEditable(false);
         connectedClients.setBackground(bg);
-        connectedClients.setForeground(client.getTheme().getTextColor());
+        connectedClients.setForeground(getTheme().getTextColor());
 
         add(connectedClients, "wrap, grow, align 0 0");
     }

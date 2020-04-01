@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -28,11 +29,7 @@ import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.setup.ExpansionChangedEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.ui.ChannelController;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.LengthRestrictedDocument;
-import com.jcloisterzone.ui.UIEventListener;
+import com.jcloisterzone.ui.*;
 import com.jcloisterzone.ui.controls.chat.ChannelChatPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
@@ -44,37 +41,37 @@ import com.jcloisterzone.wsio.message.GameMessage.GameStatus;
 import com.jcloisterzone.wsio.message.JoinGameMessage;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
-public class ChannelPanel extends ThemedJPanel implements UIEventListener {
+public class ChannelPanel extends ThemedJPanel implements UIEventListener, UiMixin {
 
     private static final int MAX_GAME_TITLE_LENGTH = 60;
 
-    private final Client client;
     private final ChannelController cc;
 
     private ChatPanel chatPanel;
     private ConnectedClientsPanel connectedClientsPanel;
     private JPanel gameListPanel;
 
-    public ChannelPanel(Client client, ChannelController cc) {
-        this.client = client;
+    public ChannelPanel(ChannelController cc) {
         this.cc = cc;
         setLayout(new MigLayout("ins 0", "[][]0[grow]", "[][grow]"));
-        setBackground(client.getTheme().getMainBg());
+        setBackground(getTheme().getMainBg());
 
-        add(connectedClientsPanel = new ConnectedClientsPanel(client, "play.jcz"), "cell 0 0, sy 2, width 150::, grow");
+        add(connectedClientsPanel = new ConnectedClientsPanel("play.jcz"), "cell 0 0, sy 2, width 150::, grow");
 
-        chatPanel = new ChannelChatPanel(client, cc);
+        chatPanel = new ChannelChatPanel(cc);
         add(chatPanel, "cell 1 0, grow, w 250, sy 2");
         add(createCreateGamePanel(), "cell 2 0, growx");
 
         gameListPanel = new JPanel();
         gameListPanel.setLayout(new MigLayout("ins rel 0, gap 0 rel", "[grow]", ""));
         //HACK
-        if (client.getTheme().isDark()) {
-            gameListPanel.setBackground(client.getTheme().getMainBg());
+        if (getTheme().isDark()) {
+            gameListPanel.setBackground(getTheme().getMainBg());
         } else {
             gameListPanel.setBackground(new Color(180, 180, 180));
         }
@@ -200,10 +197,11 @@ public class ChannelPanel extends ThemedJPanel implements UIEventListener {
                 abandonButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        int result = JOptionPane.showConfirmDialog(client,
-                            _tr("Do you want to remove game permanently?"), _tr("Remove game"),
-                            JOptionPane.YES_NO_OPTION);
-                        if (result == JOptionPane.YES_OPTION) {
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setHeaderText(_tr("Remove game"));
+                        alert.setContentText(_tr("Do you want to remove game permanently?"));
+                        Optional<ButtonType> result = alert.showAndWait();
+                        if (result.get() == ButtonType.OK){
                             cc.getConnection().send(new AbandonGameMessage(gc.getGame().getGameId()));
                         }
                     }

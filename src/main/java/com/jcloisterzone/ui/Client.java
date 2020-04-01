@@ -11,6 +11,7 @@ import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -194,12 +195,12 @@ public class Client extends JFrame {
                 handleQuit();
             }
         });
-        MenuBar menuBar = new MenuBar(this);
-        this.setJMenuBar(menuBar);
+//        AppMenuBar menuBar = new AppMenuBar(this);
+//        this.setJMenuBar(menuBar);
 
         //Toolkit.getDefaultToolkit().addAWTEventListener(new GlobalKeyListener(), AWTEvent.KEY_EVENT_MASK);
 
-        mountView(new StartView(this));
+        // mountView(new StartView(this));
         this.pack();
         initWindowSize();
         this.setTitle(BASE_TITLE);
@@ -230,11 +231,6 @@ public class Client extends JFrame {
         } catch (Throwable e) {
             logger.info("OSX full screen mode isn't supported.", e);
         }
-    }
-
-    @Override
-    public MenuBar getJMenuBar() {
-        return (MenuBar) super.getJMenuBar();
     }
 
     void resetWindowIcon() {
@@ -277,6 +273,11 @@ public class Client extends JFrame {
 
     public void setDiscardedTilesDialog(DiscardedTilesDialog discardedTilesDialog) {
         this.discardedTilesDialog = discardedTilesDialog;
+    }
+
+    @Override
+    public synchronized void addWindowStateListener(WindowStateListener l) {
+        super.addWindowStateListener(l);
     }
 
     public void cleanContentPane() {
@@ -364,7 +365,7 @@ public class Client extends JFrame {
 
 
     private void connect(String username, String hostname, int port, boolean playOnline) {
-        clientMessageListener = new ClientMessageListener(this, playOnline);
+        clientMessageListener = new ClientMessageListener(playOnline);
         try {
             URI uri = new URI("ws", null, "".equals(hostname) ? "localhost" : hostname, port, playOnline ? "/ws" : "/", null, null);
             logger.info("Connection to {}", uri);

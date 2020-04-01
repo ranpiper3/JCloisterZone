@@ -15,16 +15,17 @@ import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.TunnelCapability.Tunnel;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.resources.ResourceManager;
 
-public class PlayerPanelImageCache {
+public class PlayerPanelImageCache implements UiMixin {
 
     private final ResourceManager rm;
     private Map<String, Image> scaledImages = new HashMap<>();
 
-    public PlayerPanelImageCache(Client client, Game game) {
-        this.rm = client.getResourceManager();
+    public PlayerPanelImageCache(Game game) {
+        this.rm = getResourceManager();
         scaleImages(game);
     }
 

@@ -4,6 +4,7 @@ import static com.jcloisterzone.ui.I18nUtils._tr;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.capability.TunnelCapability.Tunnel;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.ui.MenuBar.MenuItem;
+import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
 import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
 import com.jcloisterzone.ui.panel.GameOverPanel;
@@ -59,8 +62,8 @@ public class GameController extends EventProxyUiController<Game> {
     private GameView gameView;
     private Connection connProxy;
 
-    public GameController(Client client, Game game) {
-        super(client, game);
+    public GameController(Game game) {
+        super(game);
         this.game = game;
         connProxy = new ConnectionProxy();
     }
@@ -109,19 +112,19 @@ public class GameController extends EventProxyUiController<Game> {
         }
 
         if (gameView == null) {
-            gameView = new GameView(client, this);
-            if (client.getView() instanceof GameChatView) {
-                GameChatView prevView = (GameChatView) client.getView();
+            gameView = new GameView(this);
+            if (getUiView() instanceof GameChatView) {
+                GameChatView prevView = (GameChatView) getUiView();
                 gameView.setChatPanel(prevView.getChatPanel());
             } else {
-                gameView.setChatPanel(new GameChatPanel(client, game));
+                gameView.setChatPanel(new GameChatPanel(game));
             }
         } else {
             gameView.getGridPanel().hideErrorMessage(GameView.RECONNECTING_ERR_MSG);
         }
-        if (client.getView() != gameView) {
-            SwingUtilities.invokeLater(() -> {
-                client.mountView(gameView);
+        if (getUiView() != gameView) {
+            Platform.runLater(() -> {
+                mountView(gameView);
             });
         }
     }
@@ -137,11 +140,11 @@ public class GameController extends EventProxyUiController<Game> {
         GameState state = ev.getCurrentState();
 
         if (ev.hasDiscardedTilesChanged()) {
-            DiscardedTilesDialog discardedTilesDialog = client.getDiscardedTilesDialog();
+            DiscardedTilesDialog discardedTilesDialog = FxClient.getInstance().getDiscardedTilesDialog();
             if (discardedTilesDialog == null) {
-                discardedTilesDialog = new DiscardedTilesDialog(client);
-                client.setDiscardedTilesDialog(discardedTilesDialog);
-                client.getJMenuBar().setItemEnabled(MenuItem.DISCARDED_TILES, true);
+                discardedTilesDialog = new DiscardedTilesDialog();
+                FxClient.getInstance().setDiscardedTilesDialog(discardedTilesDialog);
+                getMenuBar().setItemEnabled(MenuItemDef.DISCARDED_TILES, true);
             }
             discardedTilesDialog.setDiscardedTiles(state.getDiscardedTiles());
             discardedTilesDialog.setVisible(true);
@@ -150,33 +153,34 @@ public class GameController extends EventProxyUiController<Game> {
         if (ev.hasPlayerActionsChanged()) {
             Player pl = state.getActivePlayer();
             boolean canUndo = pl != null && pl.isLocalHuman() && game.isUndoAllowed();
-            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, canUndo);
+            getMenuBar().setItemEnabled(MenuItemDef.UNDO, canUndo);
         }
 
         if (ev.hasTurnPlayerChanged()) {
             Player pl = state.getTurnPlayer();
 
             if (pl.isLocalHuman()) {
-                client.beep();
+                getAudioManager().beep();
             }
 
             // TODO better image quality ?
             Color c = pl.getColors().getMeepleColor();
-            Image image = client.getResourceManager().getLayeredImage(new LayeredImageDescriptor(SmallFollower.class, c));
-            client.setIconImage(image);
+            Image image = getResourceManager().getLayeredImage(new LayeredImageDescriptor(SmallFollower.class, c));
+            getPrimaryStage().getIcons().clear();
+            getPrimaryStage().getIcons().add(SwingFXUtils.toFXImage((BufferedImage) image, null));
         }
     }
 
     @Subscribe
     public void handleGameStateChange(GameOverEvent ev) {
-        boolean showPlayAgain = client.getLocalServer() != null;
+        boolean showPlayAgain = FxClient.getInstance().getLocalServer() != null;
         gameView.setGameRunning(false);
         //TODO allow chat after game also for standalone server
         if (getChannel() == null && gameView.getChatPanel() != null) {
             gameView.getGridPanel().remove(gameView.getChatPanel());
         }
-        client.closeGame(true);
-        GameOverPanel panel = new GameOverPanel(client, this, showPlayAgain);
+        FxClient.getInstance().closeGame(true);
+        GameOverPanel panel = new GameOverPanel(this, showPlayAgain);
         gameView.getGridPanel().add(panel, "pos 0 35");
         gameView.getGridPanel().revalidate();
     }
@@ -192,14 +196,14 @@ public class GameController extends EventProxyUiController<Game> {
         int packSize = state.getTilePack().totalSize();
         title.append(" ⋅ ").append(String.format(_tr("%d tiles left"), packSize));
 
-        client.setTitle(title.toString());
+        getPrimaryStage().setTitle(title.toString());
     }
 
     // User interface
 
     //@Override
     public void showWarning(String title, String message) {
-        JOptionPane.showMessageDialog(client, message, title, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(null, message, title, JOptionPane.WARNING_MESSAGE);
     }
 
 //    @Subscribe
@@ -214,16 +218,16 @@ public class GameController extends EventProxyUiController<Game> {
 
     public void leaveGame() {
         if (getChannel() == null) {
-            client.mountView(new StartView(client));
+            mountView(new StartView());
         } else {
             if (getConnection().isClosed()) {
                 //TODO stop reconnecting
-                client.mountView(new StartView(client));
+                mountView(new StartView());
             } else {
-                ClientMessageListener cml = client.getClientMessageListener();
+                ClientMessageListener cml = FxClient.getInstance().getClientMessageListener();
                 getConnection().send(new LeaveGameMessage());
                 ChannelController ctrl = cml.getChannelControllers().get(channel);
-                client.mountView(new ChannelView(client, ctrl));
+                mountView(new ChannelView(ctrl));
 
                 List<GameController> gcs = cml.getGameControllers(channel);
                 ctrl.getEventProxy().post(
@@ -276,7 +280,7 @@ public class GameController extends EventProxyUiController<Game> {
     class ConnectionProxy implements Connection {
 
         private Connection getConnection() {
-            return client.getConnection();
+            return FxClient.getInstance().getConnection();
         }
 
         @Override
@@ -325,7 +329,7 @@ public class GameController extends EventProxyUiController<Game> {
 
         @Override
         public String getNickname() {
-            return client.getConnection().getNickname();
+            return FxClient.getInstance().getConnection().getNickname();
         }
     }
 }

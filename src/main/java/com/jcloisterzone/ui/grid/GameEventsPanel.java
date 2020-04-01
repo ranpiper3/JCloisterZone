@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Vector;
 
-public class GameEventsPanel extends JPanel {
+public class GameEventsPanel extends JPanel implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -77,16 +78,10 @@ public class GameEventsPanel extends JPanel {
 
     Map<Class<? extends PlayEvent>, Function1<PlayEvent, EventItem>> mapping;
 
-    protected final Theme theme;
-    protected final ResourceManager rm;
-
     private Color turnColor, triggeringColor;
 
     public GameEventsPanel(GameController gc) {
-        theme = gc.getClient().getTheme();
-        setBackground(theme.getEventsBg());
-
-        rm = gc.getClient().getResourceManager();
+        setBackground(getTheme().getEventsBg());
 
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -121,7 +116,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processTilePlacedEvent(PlayEvent _ev) {
         TilePlacedEvent ev = (TilePlacedEvent) _ev;
-        TileImage img = rm.getTileImage(ev.getTile().getId(), ev.getRotation());
+        TileImage img = getResourceManager().getTileImage(ev.getTile().getId(), ev.getRotation());
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img.getImage());
 
@@ -131,7 +126,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processTileDiscardedEvent(PlayEvent _ev) {
         TileDiscardedEvent ev = (TileDiscardedEvent) _ev;
-        TileImage img = rm.getTileImage(ev.getTile().getId(), Rotation.R0);
+        TileImage img = getResourceManager().getTileImage(ev.getTile().getId(), Rotation.R0);
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img.getImage());
         item.setDrawCross(true);
@@ -162,7 +157,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processScoreEvent(PlayEvent _ev) {
         ScoreEvent ev = (ScoreEvent) _ev;
-        ScoreEventItem item = new ScoreEventItem(theme, ev, turnColor, triggeringColor);
+        ScoreEventItem item = new ScoreEventItem(getTheme(), ev, turnColor, triggeringColor);
 
         if (ev.getCategory() == PointCategory.FAIRY || ev.getFeaturePointer() == null) {
             item.setHighlightedPositions(Vector.of(ev.getPosition()));
@@ -175,7 +170,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processNeutralFigureMoved(PlayEvent _ev) {
         NeutralFigureMoved ev = (NeutralFigureMoved) _ev;
-        Image img = rm.getImage("neutral/" + ev.getNeutralFigure().getClass().getSimpleName().toLowerCase());
+        Image img = getResourceManager().getImage("neutral/" + ev.getNeutralFigure().getClass().getSimpleName().toLowerCase());
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img);
 
@@ -199,7 +194,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processNeutralFigureReturned(PlayEvent _ev) {
         NeutralFigureReturned ev = (NeutralFigureReturned) _ev;
-        Image img = rm.getImage("neutral/" + ev.getNeutralFigure().getClass().getSimpleName().toLowerCase());
+        Image img = getResourceManager().getImage("neutral/" + ev.getNeutralFigure().getClass().getSimpleName().toLowerCase());
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img);
         item.setDrawCross(true);
@@ -222,12 +217,12 @@ public class GameEventsPanel extends JPanel {
         if (token instanceof Tunnel) {
             Player player = state.getPlayers().getPlayer(ev.getMetadata().getTriggeringPlayerIndex());
             java.util.Map<Tunnel, Color> tunnelColors = player.getColors().getTunnelColors();
-            Image img = rm.getLayeredImage(
+            Image img = getResourceManager().getLayeredImage(
                 new LayeredImageDescriptor("player-meeples/tunnel", tunnelColors.get(token))
              );
             item.setImage(img);
         } else {
-            item.setImage(rm.getImage("neutral/" + token.name().toLowerCase()));
+            item.setImage(getResourceManager().getImage("neutral/" + token.name().toLowerCase()));
         }
 
         item.setHighlightedPositions(Vector.of(ev.getPointer().getPosition()));
@@ -237,7 +232,7 @@ public class GameEventsPanel extends JPanel {
     private EventItem processTokenReceivedEvent(PlayEvent _ev) {
         TokenReceivedEvent ev = (TokenReceivedEvent) _ev;
         Color playerColor = getMeepleColor(ev.getPlayer());
-        Image img = rm.getImage("neutral/" + ev.getToken().name().toLowerCase());
+        Image img = getResourceManager().getImage("neutral/" + ev.getToken().name().toLowerCase());
         ImageEventItem item = new ImageEventItem(ev, turnColor, playerColor);
         item.setImage(img);
 
@@ -252,7 +247,7 @@ public class GameEventsPanel extends JPanel {
 
     private EventItem processCastleCreatedEvent(PlayEvent _ev) {
         CastleCreated ev = (CastleCreated) _ev;
-        Image img = rm.getImage("neutral/castle");
+        Image img = getResourceManager().getImage("neutral/castle");
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img);
         item.setHighlightedFeature(ev.getCastle());
@@ -260,7 +255,7 @@ public class GameEventsPanel extends JPanel {
     }
 
     private ImageEventItem getMeepleItem(PlayEvent ev, Meeple meeple, FeaturePointer fp) {
-        Image img = rm.getLayeredImage(new LayeredImageDescriptor(meeple.getClass(), meeple.getPlayer().getColors().getMeepleColor()));
+        Image img = getResourceManager().getLayeredImage(new LayeredImageDescriptor(meeple.getClass(), meeple.getPlayer().getColors().getMeepleColor()));
         ImageEventItem item = new ImageEventItem(ev, turnColor, triggeringColor);
         item.setImage(img);
         item.setPadding(2);

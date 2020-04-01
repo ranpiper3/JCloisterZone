@@ -79,17 +79,17 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
             Location loc = fp.getLocation();
 
             if (action instanceof BridgeAction) {
-                fa = rm.getBridgeArea(loc);
+                fa = getResourceManager().getBridgeArea(loc);
             } else if (action instanceof FerriesAction) {
                 fa = new FeatureArea(getFerryArea(loc), FeatureArea.DEFAULT_ROAD_ZINDEX);
                 fa = fa.setForceAreaColor(new Color(253, 241, 215));
                 //fa = fa.setForceAreaColor(Color.WHITE);
             } else if ((action instanceof MeepleAction) && ((MeepleAction)action).getMeepleType().equals(Barn.class)) {
-                fa = rm.getBarnArea();
+                fa = getResourceManager().getBarnArea();
             } else {
                 //Decouple from gc.getGame(), use state directly
                 PlacedTile pt = gc.getGame().getState().getPlacedTile(fp.getPosition());
-                fa = rm.getFeatureArea(pt.getTile(), pt.getRotation(), loc);
+                fa = getResourceManager().getFeatureArea(pt.getTile(), pt.getRotation(), loc);
             }
 
             return new Tuple2<>(fp, fa.translateTo(fp.getPosition()));
@@ -122,7 +122,7 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
                     } else {
                         dialogOptions = new String[] {_tr("Place as monk"), _tr("Place as abbot") };
                     }
-                    int result = JOptionPane.showOptionDialog(getClient(),
+                    int result = JOptionPane.showOptionDialog(null,
                         _tr("How do you want to place follower on monastery?"),
                         _tr("Monastery"),
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogOptions, dialogOptions[0]);

@@ -3,20 +3,18 @@ package com.jcloisterzone.ui.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JPanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.event.ClientListChangedEvent;
+import com.jcloisterzone.ui.FxClient;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.MenuBar;
-import com.jcloisterzone.ui.MenuBar.MenuItem;
+import com.jcloisterzone.ui.AppMenuBar;
+import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.panel.BackgroundPanel;
@@ -36,8 +34,7 @@ public class GameSetupView extends AbstractUiView implements GameChatView {
     private CreateGamePanel createGamePanel;
     private ConnectedClientsPanel connectedClientsPanel;
 
-    public GameSetupView(Client client, GameController gc, boolean mutableSlots) {
-        super(client);
+    public GameSetupView(GameController gc, boolean mutableSlots) {
         this.gc = gc;
         this.game = gc.getGame();
         this.mutableSlots = mutableSlots;
@@ -64,21 +61,16 @@ public class GameSetupView extends AbstractUiView implements GameChatView {
         gc.register(this);
         registerChildComponents(root, gc);
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemActionListener(MenuItem.LEAVE_GAME, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gc.leaveGame();
-            }
-        });
-        menu.setItemEnabled(MenuItem.LEAVE_GAME, true);
+        AppMenuBar menu = getMenuBar();
+        menu.setItemActionListener(MenuItemDef.LEAVE_GAME, e -> { gc.leaveGame(); });
+        menu.setItemEnabled(MenuItemDef.LEAVE_GAME, true);
 
         createGamePanel.updateSupportedExpansions(game.mergeSupportedExpansions());
     }
 
     private void showCreateGamePanel(Container panel, boolean mutableSlots, PlayerSlot[] slots) {
-        createGamePanel = new CreateGamePanel(client, gc, mutableSlots, slots);
-        createGamePanel.setBackground(client.getTheme().getMainBg());
+        createGamePanel = new CreateGamePanel(gc, mutableSlots, slots);
+        createGamePanel.setBackground(getTheme().getMainBg());
         JPanel envelope = new BackgroundPanel();
         envelope.setLayout(new MigLayout("align 50% 50%", "[]", "[]")); //to have centered inner panel
         envelope.add(createGamePanel, "grow");
@@ -91,16 +83,16 @@ public class GameSetupView extends AbstractUiView implements GameChatView {
         chatColumn.setPreferredSize(new Dimension(250, panel.getHeight()));
         panel.add(chatColumn, BorderLayout.WEST);
 
-        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(client, game.getName()), "cell 0 0, grow");
+        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(game.getName()), "cell 0 0, grow");
 
-        chatPanel = new GameChatPanel(client, game);
+        chatPanel = new GameChatPanel(game);
         chatColumn.add(chatPanel, "cell 0 1, grow");
     }
 
     @Override
     public boolean requestHide(UiView nextView) {
         if (!(nextView instanceof GameView)) {
-            return client.closeGame();
+            return FxClient.getInstance().closeGame();
         } else {
             return true;
         }
@@ -111,8 +103,8 @@ public class GameSetupView extends AbstractUiView implements GameChatView {
         gc.unregister(this);
         unregisterChildComponents(root, gc);
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemEnabled(MenuItem.LEAVE_GAME, false);
+        AppMenuBar menu = getMenuBar();
+        menu.setItemEnabled(MenuItemDef.LEAVE_GAME, false);
     }
 
     @Override
@@ -135,7 +127,7 @@ public class GameSetupView extends AbstractUiView implements GameChatView {
 
     @Override
     public void onWebsocketClose(int code, String reason, boolean remote) {
-        client.mountView(new StartView(client));
+        mountView(new StartView());
     }
 
     @Override

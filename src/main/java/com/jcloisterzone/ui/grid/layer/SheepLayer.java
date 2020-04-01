@@ -36,7 +36,7 @@ public class SheepLayer extends AbstractGridLayer {
         placedTokens = state.getCapabilityModel(SheepCapability.class)
         		.mapKeys(fp -> {
         			PlacedTile tile = state.getPlacedTile(fp.getPosition());
-        			ImmutablePoint point = rm.getMeeplePlacement(tile.getTile(), tile.getRotation(), fp.getLocation());
+        			ImmutablePoint point = getResourceManager().getMeeplePlacement(tile.getTile(), tile.getRotation(), fp.getLocation());
         			return new Tuple2<>(fp, point.translate(20, -5)); // shift circle out of shepherd
         		})
         		.mapValues(tokens -> tokens.foldLeft(0, (acc, token) -> acc + token.sheepCount()));

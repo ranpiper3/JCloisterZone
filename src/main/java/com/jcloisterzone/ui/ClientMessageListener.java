@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ import com.jcloisterzone.wsio.message.WsReplayableMessage;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
 
-public class ClientMessageListener implements MessageListener {
+public class ClientMessageListener implements MessageListener, UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -81,16 +82,14 @@ public class ClientMessageListener implements MessageListener {
     private Map<String, ChannelController> channelControllers = new HashMap<>();
 
     private final boolean playOnline;
-    private final Client client;
     private boolean autostartPerfomed;
 
-    public ClientMessageListener(Client client, boolean playOnline) {
-        this.client = client;
+    public ClientMessageListener(boolean playOnline) {
         this.playOnline = playOnline;
     }
 
     public WebSocketConnection connect(String username, URI uri) {
-        conn = new WebSocketConnection(username, client.getConfig(), uri, this);
+        conn = new WebSocketConnection(username, getConfig(), uri, this);
         return conn;
     }
 
@@ -118,13 +117,13 @@ public class ClientMessageListener implements MessageListener {
 
     @Override
     public void onWebsocketError(Exception ex) {
-        client.onWebsocketError(ex);
+        FxClient.getInstance().onWebsocketError(ex);
     }
 
     @Override
     public void onWebsocketClose(int code, String reason, boolean remote) {
         // do not clear controllers, may reconnect and use them
-        client.onWebsocketClose(code, reason, remote);
+        FxClient.getInstance().onWebsocketClose(code, reason, remote);
     }
 
     @Override
@@ -186,7 +185,7 @@ public class ClientMessageListener implements MessageListener {
         for (SlotMessage slotMsg : msg.getSlots()) {
             int number = slotMsg.getNumber();
             PlayerSlot slot = new PlayerSlot(number);
-            slot.setColors(client.getConfig().getPlayerColor(slot));
+            slot.setColors(getConfig().getPlayerColor(slot));
             slots[number] = slot;
             updateSlot(slots, slotMsg);
         }
@@ -198,7 +197,7 @@ public class ClientMessageListener implements MessageListener {
         GameController gc;
         game = new Game(msg.getGameId(), msg.getInitialSeed());
         game.setName(msg.getName());
-        gc = new GameController(client, game);
+        gc = new GameController(game);
         // don't set conn instance on game directly!
         // instead use proxy created by GameController -> gc.getConnection()
         game.setConnection(gc.getConnection());
@@ -219,7 +218,7 @@ public class ClientMessageListener implements MessageListener {
 
     private void handleGameStarted(final GameController gc, io.vavr.collection.List<WsReplayableMessage> replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
-        HashMap<String, Object> annotations = gc.getClient().getSavedGameAnnotations();
+        HashMap<String, Object> annotations = FxClient.getInstance().getSavedGameAnnotations();
         gc.getGame().start(gc, replay, annotations);
 
         if (!"false".equals(System.getProperty("showGameDebugModeInfo"))) {
@@ -237,8 +236,8 @@ public class ClientMessageListener implements MessageListener {
     }
 
     private void openGameSetup(final GameController gc, final GameMessage msg) throws InvocationTargetException, InterruptedException {
-        SwingUtilities.invokeAndWait(() -> {
-            client.mountView(new GameSetupView(client, gc, msg.getStatus() == GameStatus.OPEN));
+        Platform.runLater(() -> {
+            mountView(new GameSetupView(gc, msg.getStatus() == GameStatus.OPEN));
             performAutostart(gc.getGame()); //must wait for panel is created
         });
     }
@@ -307,11 +306,11 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleChannel(final ChannelMessage msg) throws InvocationTargetException, InterruptedException {
         Channel channel = new Channel(msg.getName());
-        final ChannelController channelController = new ChannelController(client, channel);
+        final ChannelController channelController = new ChannelController(channel);
         channelController.getRemoteClients().addAll(Arrays.asList(msg.getClients()));
         channelControllers.clear();
         channelControllers.put(channel.getName(), channelController);
-        SwingUtilities.invokeAndWait(() -> client.mountView(new ChannelView(client, channelController)));
+        SwingUtilities.invokeAndWait(() -> mountView(new ChannelView(channelController)));
         GameController[] gameControllers = new GameController[msg.getGames().length];
         int i = 0;
         for (ChannelMessageGame game : msg.getGames()) {
@@ -335,8 +334,8 @@ public class ClientMessageListener implements MessageListener {
             handleGame(msg.getGame(), true);
         } else {
             if (GameStatus.RUNNING.equals(status) &&
-                    client.getView() instanceof GameSetupView) {
-                GameController gc = ((GameSetupView) client.getView()).getGameController();
+                    getUiView() instanceof GameSetupView) {
+                GameController gc = ((GameSetupView) getUiView()).getGameController();
                 if (gc.getGame().getGameId().equals(msg.getGame().getGameId())) {
                     gc.setGameStatus(status);
                     return;
@@ -467,12 +466,12 @@ public class ClientMessageListener implements MessageListener {
             } else {
                 msg = _tr("Remote JCloisterZone is not compatible with local application. Please upgrade both applications to same version.");
             }
-            JOptionPane.showMessageDialog(client, msg, _tr("Incompatible versions"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, msg, _tr("Incompatible versions"), JOptionPane.ERROR_MESSAGE);
             break;
         case ErrorMessage.INVALID_PASSWORD:
-            JOptionPane.showMessageDialog(client, _tr("Invalid password"), _tr("Invalid password"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, _tr("Invalid password"), _tr("Invalid password"), JOptionPane.WARNING_MESSAGE);
         default:
-            JOptionPane.showMessageDialog(client, err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -482,11 +481,11 @@ public class ClientMessageListener implements MessageListener {
 
 
     protected void performAutostart(Game game) {
-        DebugConfig debugConfig = client.getConfig().getDebug();
+        DebugConfig debugConfig = getConfig().getDebug();
         if (!autostartPerfomed && debugConfig != null && debugConfig.isAutostartEnabled()) {
             autostartPerfomed = true; // apply autostart only once
             AutostartConfig autostartConfig = debugConfig.getAutostart();
-            final PresetConfig presetCfg = client.getConfig().getPresets().get(autostartConfig.getPreset());
+            final PresetConfig presetCfg = getConfig().getPresets().get(autostartConfig.getPreset());
             if (presetCfg == null) {
                 logger.warn("Autostart profile {} not found.", autostartConfig.getPreset());
                 return;

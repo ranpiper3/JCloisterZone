@@ -25,17 +25,17 @@ public class CornCirclesPanel extends ActionInteractionPanel<CornCircleSelectDep
 
     private JButton deploymentOption, removalOption;
 
-    public CornCirclesPanel(Client client, GameController gc) {
-        super(client, gc);
+    public CornCirclesPanel(GameController gc) {
+        super(gc);
         setOpaque(true);
-        setBackground(gc.getClient().getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));
 
         JLabel label;
 
         label = new ThemedJLabel(_tr("Corn circle"));
         label.setFont(FONT_HEADER);
-        label.setForeground(gc.getClient().getTheme().getHeaderFontColor());
+        label.setForeground(getTheme().getHeaderFontColor());
         add(label, "wrap, gapbottom 10");
 
         label = new ThemedJLabel(_tr("Each player…"));

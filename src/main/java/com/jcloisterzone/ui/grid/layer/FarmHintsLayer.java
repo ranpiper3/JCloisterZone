@@ -87,7 +87,7 @@ public class FarmHintsLayer extends AbstractGridLayer {
     }
 
     private FarmHintsLayerModel createModel(GameState state) {
-        ResourceManager rm = gc.getClient().getResourceManager();
+        ResourceManager rm = getResourceManager();
 
         FarmHintsLayerModel model = new FarmHintsLayerModel();
         model.hints = state.getFeatures(Farm.class)

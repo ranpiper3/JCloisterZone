@@ -12,6 +12,7 @@ import com.google.common.base.Joiner;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Rule;
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.component.MultiLineLabel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
@@ -19,18 +20,16 @@ import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import io.vavr.Tuple2;
 import net.miginfocom.swing.MigLayout;
 
-public class GameSetupDialog extends JDialog {
+public class GameSetupDialog extends JDialog implements UiMixin {
 
-    public GameSetupDialog(Client client, Game game) {
-        super(client);
-
+    public GameSetupDialog(Game game) {
         setTitle(_tr("Game setup"));
         UiUtils.centerDialog(this, 600, 400);
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         Container pane = getContentPane();
-        pane.setBackground(client.getTheme().getPanelBg());
+        pane.setBackground(getTheme().getPanelBg());
         pane.setLayout(new MigLayout("", "[]", ""));
 
         Joiner joiner = Joiner.on(", ").skipNulls();
@@ -55,5 +54,4 @@ public class GameSetupDialog extends JDialog {
         MultiLineLabel lRules = new MultiLineLabel(joiner.join(rules));
         pane.add(lRules, "wrap, w 600");
     }
-
 }

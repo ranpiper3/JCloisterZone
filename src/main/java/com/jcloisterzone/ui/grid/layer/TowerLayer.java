@@ -82,7 +82,7 @@ public class TowerLayer extends AbstractGridLayer {
             PlacedTile pt = t._1;
             Tower tower = t._2;
             //TODO generate are in create model
-            Area ra = rm.getFeatureArea(pt.getTile(), pt.getRotation(), Location.TOWER)
+            Area ra = getResourceManager().getFeatureArea(pt.getTile(), pt.getRotation(), Location.TOWER)
                 .translateTo(pt.getPosition())
                 .getDisplayArea()
                 .createTransformedArea(getZoomScale());

@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import com.jcloisterzone.wsio.message.TakeSlotMessage;
 
 import net.miginfocom.swing.MigLayout;
 
-public class CreateGamePlayerPanel extends ThemedJPanel {
+public class CreateGamePlayerPanel extends ThemedJPanel implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -48,7 +49,6 @@ public class CreateGamePlayerPanel extends ThemedJPanel {
     private final PlayerSlot[] slots;
     private boolean ownSlot = false;
 
-    private final Client client;
     private final GameController gc;
     private boolean mutableSlots;
     private boolean channel;
@@ -66,10 +66,9 @@ public class CreateGamePlayerPanel extends ThemedJPanel {
     /**
      * Create the panel.
      */
-    public CreateGamePlayerPanel(Client client, GameController gc, boolean mutableSlots, PlayerSlot slot, PlayerSlot[] slots) {
+    public CreateGamePlayerPanel(GameController gc, boolean mutableSlots, PlayerSlot slot, PlayerSlot[] slots) {
         this.slot = slot;
         this.slots = slots;
-        this.client = client;
         this.gc = gc;
         this.mutableSlots = mutableSlots;
         this.channel = gc.getChannel() != null;
@@ -133,7 +132,7 @@ public class CreateGamePlayerPanel extends ThemedJPanel {
     }
 
     private void updateIcon(String iconType, Color color, boolean state) {
-        Image imgRes = client.getResourceManager().getLayeredImage(new LayeredImageDescriptor("player-slot/" + iconType, color));
+        Image imgRes = getResourceManager().getLayeredImage(new LayeredImageDescriptor("player-slot/" + iconType, color));
         imgRes = imgRes.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         ImageIcon img = new ImageIcon(imgRes);
         icon.setIcon(img);
@@ -226,7 +225,7 @@ public class CreateGamePlayerPanel extends ThemedJPanel {
                 sendTakeSlotMessage(slot);
             } else if (!slot.isAi()) { //player --> ai
                 nameProvider.releaseName(false, slot.getNumber());
-                slot.setAiClassName(client.getConfig().getAi().getClass_name());
+                slot.setAiClassName(getConfig().getAi().getClass_name());
                 nick = nameProvider.reserveName(true, slot.getNumber());
                 slot.setNickname(nick);
                 nickname.setText(nick);

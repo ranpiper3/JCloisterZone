@@ -39,17 +39,17 @@ public class FlockPanel extends ActionInteractionPanel<FlockAction> {
 	private JButton expandOption, scoreOption;
 
 
-	public FlockPanel(Client client, GameController gc) {
-		super(client, gc);
+	public FlockPanel(GameController gc) {
+		super(gc);
 		setOpaque(true);
-        setBackground(gc.getClient().getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));
 
         JLabel label;
 
         label = new ThemedJLabel(_tr("Shepherd"));
         label.setFont(FONT_HEADER);
-        label.setForeground(gc.getClient().getTheme().getHeaderFontColor());
+        label.setForeground(getTheme().getHeaderFontColor());
         add(label, "wrap, gapbottom 10");
 
         label = new ThemedJLabel(_tr("Farm with shepherd was expanded."));
@@ -69,7 +69,7 @@ public class FlockPanel extends ActionInteractionPanel<FlockAction> {
 		for (Meeple m : shephersOnFarm.keySet()) {
 			 Color color = m.getPlayer().getColors().getMeepleColor();
 	         LayeredImageDescriptor lid = new LayeredImageDescriptor(m.getClass(), color);
-	         Image image = client.getResourceManager().getLayeredImage(lid);
+	         Image image = getResourceManager().getLayeredImage(lid);
 	         farmContent.add(createIconLabel(image), (++i % 5 == 0) ? "wrap": "");
 		}
 
@@ -77,7 +77,7 @@ public class FlockPanel extends ActionInteractionPanel<FlockAction> {
 		int points = 0;
 		for (SheepToken token : shephersOnFarm.values().flatMap(fp -> placedTokens.get(fp).get())) {
 			points += token.sheepCount();
-			Image image = client.getResourceManager().getImage("neutral/" + token.name().toLowerCase());
+			Image image = getResourceManager().getImage("neutral/" + token.name().toLowerCase());
 			farmContent.add(createIconLabel(image), (++i % 5 == 0) ? "wrap": "");
 		}
 		add(farmContent, "wrap, gapbottom 5");

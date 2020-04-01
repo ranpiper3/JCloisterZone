@@ -15,6 +15,8 @@ import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.FxClient;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.component.MultiLineLabel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
@@ -23,7 +25,7 @@ import com.jcloisterzone.ui.view.ConnectPlayOnlineView;
 
 import net.miginfocom.swing.MigLayout;
 
-public class StartPanel extends ThemedJPanel {
+public class StartPanel extends ThemedJPanel implements UiMixin {
 
     static Font FONT_LARGE_BUTTON = new Font(null, Font.PLAIN, 25);
 
@@ -32,15 +34,15 @@ public class StartPanel extends ThemedJPanel {
     /**
      * Create the panel.
      */
-    public StartPanel(final Client client) {
-        if (!client.getTheme().isDark()) { //HACK
+    public StartPanel() {
+        if (!getTheme().isDark()) { //HACK
             setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
         setLayout(new MigLayout("", "[center,grow]20[center,grow]", "[]20[]10[]"));
 
 
         JLabel lblNewLabel = new JLabel();
-        if (client.getTheme().isDark()) {
+        if (getTheme().isDark()) {
             lblNewLabel.setIcon(new ImageIcon(StartPanel.class.getResource("/sysimages/jcloisterzone-dark.png")));
         } else {
             lblNewLabel.setIcon(new ImageIcon(StartPanel.class.getResource("/sysimages/jcloisterzone.png")));
@@ -50,7 +52,7 @@ public class StartPanel extends ThemedJPanel {
         add(helpPanel, "span 2, wrap, grow, gap 30 30");
 
         JPanel playHostedPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) { //HACK
+        if (!getTheme().isDark()) { //HACK
             playHostedPanel.setBorder(new TitledBorder(
                 UIManager.getBorder("TitledBorder.border"),  "", TitledBorder.LEADING,
                 TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -74,7 +76,7 @@ public class StartPanel extends ThemedJPanel {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.createGame();
+                FxClient.getInstance().createGame();
             }
         });
         btn.setFont(FONT_LARGE_BUTTON);
@@ -86,7 +88,7 @@ public class StartPanel extends ThemedJPanel {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.handleLoad();
+                FxClient.getInstance().handleLoad();
             }
         });
         btn.setFont(FONT_LARGE_BUTTON);
@@ -100,13 +102,13 @@ public class StartPanel extends ThemedJPanel {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.mountView(new ConnectP2PView(client));
+                mountView(new ConnectP2PView());
             }
         });
         btn.setFont(FONT_LARGE_BUTTON);
 
         JPanel playOnlinePanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) { //HACK
+        if (!getTheme().isDark()) { //HACK
             playOnlinePanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
         }
         add(playOnlinePanel, "grow, width :250:, wrap");
@@ -120,7 +122,7 @@ public class StartPanel extends ThemedJPanel {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.mountView(new ConnectPlayOnlineView(client));
+                mountView(new ConnectPlayOnlineView());
             }
         });
         btn.setFont(FONT_LARGE_BUTTON);

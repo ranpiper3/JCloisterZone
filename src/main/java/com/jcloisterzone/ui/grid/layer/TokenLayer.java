@@ -71,7 +71,7 @@ public class TokenLayer extends AbstractGridLayer {
             Position pos = t._1;
             Token lb = t._2;
             String imgName = lb.name().toLowerCase();
-            Image img = rm.getImage("neutral/" + imgName);
+            Image img = getResourceManager().getImage("neutral/" + imgName);
             int w = img.getWidth(null);
             int h = img.getHeight(null);
             if (lb == LittleBuilding.LB_TOWER) {
@@ -93,9 +93,9 @@ public class TokenLayer extends AbstractGridLayer {
                 PlacedTunnelToken placedTunnel = t._2;
                 Player player = state.getPlayers().getPlayer(placedTunnel.getPlayerIndex());
                 Color color = player.getSlot().getColors().getTunnelColors().get(t._2.getToken());
-                Image img = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", color));
+                Image img = getResourceManager().getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", color));
                 PlacedTile pt = state.getPlacedTiles().get(pos).get();
-                ImmutablePoint point = rm.getMeeplePlacement(pt.getTile(), pt.getRotation(), fp.getLocation());
+                ImmutablePoint point = getResourceManager().getMeeplePlacement(pt.getTile(), pt.getRotation(), fp.getLocation());
                 // HACK move it closer to center - TODO put precise tunnel location into points.xml
                 point = new ImmutablePoint(
                     (int) (point.getX() / 2.0 + POINT_NORMALIZED_SIZE / 4.0),

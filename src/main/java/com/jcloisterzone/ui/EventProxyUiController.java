@@ -9,15 +9,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
-import com.jcloisterzone.config.Config;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
-public class EventProxyUiController<T extends EventProxy> {
+public class EventProxyUiController<T extends EventProxy> implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected final Client client;
     private final EventBus eventBus;
     private final T eventProxy;
 
@@ -25,8 +23,7 @@ public class EventProxyUiController<T extends EventProxy> {
 
     private final List<RemoteClient> remoteClients = new ArrayList<RemoteClient>();
 
-    public EventProxyUiController(Client client, T eventProxy) {
-        this.client = client;
+    public EventProxyUiController(T eventProxy) {
         this.eventProxy = eventProxy;
 
         eventBus = new EventBus(new EventBusExceptionHandler(getClass().getName() + " event bus"));
@@ -49,14 +46,6 @@ public class EventProxyUiController<T extends EventProxy> {
         }
     }
 
-    public Client getClient() {
-        return client;
-    }
-
-    public Config getConfig() {
-        return client == null ? null : client.getConfig();
-    }
-
     public T getEventProxy() {
         return eventProxy;
     }
@@ -70,6 +59,6 @@ public class EventProxyUiController<T extends EventProxy> {
     }
 
     public Connection getConnection() {
-        return client.getConnection();
+        return FxClient.getInstance().getConnection();
     }
 }

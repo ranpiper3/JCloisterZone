@@ -9,20 +9,19 @@ public class ChannelChatPanel extends ChatPanel {
 
     private final ChannelController cc;
 
-    public ChannelChatPanel(Client client, ChannelController cc) {
-        super(client);
+    public ChannelChatPanel(ChannelController cc) {
         this.cc = cc;
     }
 
     @Override
     protected ReceivedChatMessage createReceivedMessage(ChatEvent ev) {
         if (ev.getRemoteClient() == null) {
-            return new ReceivedChatMessage(ev, "* play.jcz *", client.getTheme().getChatSystemColor());
+            return new ReceivedChatMessage(ev, "* play.jcz *", getTheme().getChatSystemColor());
         } else {
             boolean isMe = cc.getConnection().getSessionId().equals(ev.getRemoteClient().getSessionId());
             return new ReceivedChatMessage(ev, ev.getRemoteClient().getName(), isMe ?
-                    client.getTheme().getChatMyColor() :
-                    client.getTheme().getChatNeutralColor());
+                    getTheme().getChatMyColor() :
+                    getTheme().getChatNeutralColor());
         }
     }
 

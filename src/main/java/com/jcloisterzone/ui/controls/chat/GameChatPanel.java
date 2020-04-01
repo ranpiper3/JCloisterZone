@@ -14,8 +14,7 @@ public class GameChatPanel extends ChatPanel {
 
     private final Game game;
 
-    public GameChatPanel(Client client, Game game) {
-        super(client);
+    public GameChatPanel(Game game) {
         this.game = game;
     }
 
@@ -36,7 +35,7 @@ public class GameChatPanel extends ChatPanel {
     @Override
     protected ReceivedChatMessage createReceivedMessage(ChatEvent ev) {
         String nick = ev.getRemoteClient().getName();
-        Color color = client.getTheme().getChatNeutralColor();
+        Color color = getTheme().getChatNeutralColor();
         GameState state = game.getState();
 
         if (game.isStarted()) {

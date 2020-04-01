@@ -42,13 +42,13 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
         if (action == null) {
             gridDecoration = null;
         } else if (action instanceof FairyOnTileAction) {
-            gridDecoration = rm.getImage("decorations/fairy");
+            gridDecoration = getResourceManager().getImage("decorations/fairy");
         } else if (action instanceof TowerPieceAction) {
-            gridDecoration = rm.getImage("decorations/tower");
+            gridDecoration = getResourceManager().getImage("decorations/tower");
         } else if (action instanceof GoldPieceAction) {
-            gridDecoration = rm.getImage("decorations/gold");
+            gridDecoration = getResourceManager().getImage("decorations/gold");
         } else if (action instanceof MoveDragonAction) {
-            gridDecoration = rm.getImage("decorations/dragon");
+            gridDecoration = getResourceManager().getImage("decorations/dragon");
         }
     }
 

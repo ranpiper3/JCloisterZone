@@ -29,7 +29,7 @@ public class GoldLayer extends AbstractGridLayer {
 
     public GoldLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
-        goldImage = rm.getImage("neutral/gold");
+        goldImage = getResourceManager().getImage("neutral/gold");
         widthHeightRatio = goldImage.getWidth(null) / (double) goldImage.getHeight(null);
     }
 

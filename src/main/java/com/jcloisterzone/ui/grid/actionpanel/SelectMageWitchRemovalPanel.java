@@ -24,18 +24,18 @@ import net.miginfocom.swing.MigLayout;
 public class SelectMageWitchRemovalPanel extends ActionInteractionPanel<RemovMageOrWithAction> {
 
 
-    public SelectMageWitchRemovalPanel(Client client, GameController gc) {
-        super(client, gc);
+    public SelectMageWitchRemovalPanel(GameController gc) {
+        super(gc);
 
         setOpaque(true);
-        setBackground(gc.getClient().getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));
 
         JLabel label;
 
         label = new ThemedJLabel(_tr("Mage and Witch"));
         label.setFont(FONT_HEADER);
-        label.setForeground(gc.getClient().getTheme().getHeaderFontColor());
+        label.setForeground(getTheme().getHeaderFontColor());
         add(label, "wrap, gapbottom 10");
 
         MultiLineLabel mll = new MultiLineLabel(_tr("It''s not possible to place mage or witch because there isn''t an unfinished feature. Select what figure do you want to remove from board."));

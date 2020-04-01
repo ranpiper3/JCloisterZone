@@ -21,6 +21,7 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
@@ -31,7 +32,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 
 
-public abstract class AbstractAreaLayer extends AbstractGridLayer implements ActionLayer {
+public abstract class AbstractAreaLayer extends AbstractGridLayer implements ActionLayer, UiMixin {
 
     private static final AlphaComposite AREA_ALPHA_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f);
     private static final AlphaComposite FIGURE_HIGHLIGHT_AREA_ALPHA_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .75f);
@@ -52,7 +53,7 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
 
     public AbstractAreaLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
-        DebugConfig debugConfig = getClient().getConfig().getDebug();
+        DebugConfig debugConfig = getConfig().getDebug();
         if (debugConfig != null && "figure".equals(debugConfig.getArea_highlight())) {
             figureHighlight = true;
         }
@@ -180,9 +181,9 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
         //ugly copy pasted code from Meeple but uncached here
         g2.setComposite(FIGURE_HIGHLIGHT_AREA_ALPHA_COMPOSITE);
         PlacedTile placedTile = state.getPlacedTile(pos);
-        ImmutablePoint point = rm.getMeeplePlacement(placedTile.getTile(), placedTile.getRotation(), fp.getLocation());
+        ImmutablePoint point = getResourceManager().getMeeplePlacement(placedTile.getTile(), placedTile.getRotation(), fp.getLocation());
         Player p = state.getActivePlayer();
-        Image unscaled = rm.getLayeredImage(
+        Image unscaled = getResourceManager().getLayeredImage(
             new LayeredImageDescriptor(SmallFollower.class, p.getColors().getMeepleColor())
         );
         int size = (int) (getTileWidth() * MeepleLayer.FIGURE_SIZE_RATIO);

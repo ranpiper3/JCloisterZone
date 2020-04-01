@@ -44,11 +44,12 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlayersState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.PayRansomMessage;
 
-public class PlayerPanel extends MouseTrackingComponent implements RegionMouseListener {
+public class PlayerPanel extends MouseTrackingComponent implements RegionMouseListener, UiMixin {
 
     private static final Color KING_ROBBER_OVERLAY = new Color(0f,0f,0f,0.4f);
     private static final Color POTENTIAL_POINTS_COLOR = new Color(160, 160, 160);
@@ -64,7 +65,6 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
     private static final int LINE_HEIGHT = 32;
     private static final int DELIMITER_Y = 34;
 
-    private final Client client;
     private final GameView gameView;
     private final GameController gc;
     private final Player player;
@@ -85,8 +85,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
     private Integer timeLimit;
 
-    public PlayerPanel(Client client, GameView gameView, Player player, PlayerPanelImageCache cache) {
-        this.client = client;
+    public PlayerPanel(GameView gameView, Player player, PlayerPanelImageCache cache) {
         this.player = player;
         this.gameView = gameView;
         this.gc = gameView.getGameController();
@@ -99,9 +98,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
     }
 
     private void drawDelimiter(int y) {
-        g2.setColor(client.getTheme().getDelimiterTopColor());
+        g2.setColor(getTheme().getDelimiterTopColor());
         g2.drawLine(PADDING_L, y, PANEL_WIDTH /*-PADDING_R*/, y);
-        g2.setColor(client.getTheme().getDelimiterBottomColor());
+        g2.setColor(getTheme().getDelimiterBottomColor());
         g2.drawLine(PADDING_L, y+1, PANEL_WIDTH /*-PADDING_R*/, y+1);
     }
 
@@ -111,7 +110,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
     private void drawTextShadow(String text, int x, int y, Color color) {
         //TODO shadow color based on color ??
-        Color shadowColor = client.getTheme().getFontShadowColor();
+        Color shadowColor = getTheme().getFontShadowColor();
         if (shadowColor != null) {
             g2.setColor(shadowColor);
             g2.drawString(text, x+1, y+1);
@@ -187,7 +186,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //HACK - needed final bg for proper antialiasing - but can't overlap rounded corners
-        g2.setColor(client.getTheme().getPlayerBoxBg());
+        g2.setColor(getTheme().getPlayerBoxBg());
         g2.fillRect(8, 8, PANEL_WIDTH, 36);
 
 //      gp.profile(" > create buffer");
@@ -359,7 +358,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
     @Override
     public void paint(Graphics g) {
         Graphics2D parentGraphics = (Graphics2D) g;
-        parentGraphics.setColor(client.getTheme().getPlayerBoxBg());
+        parentGraphics.setColor(getTheme().getPlayerBoxBg());
         parentGraphics.fillRoundRect(0, 0, PANEL_WIDTH+CORNER_DIAMETER, realHeight, CORNER_DIAMETER, CORNER_DIAMETER);
         parentGraphics.drawImage(bimg, 0, 0, PANEL_WIDTH, realHeight, 0, 0, PANEL_WIDTH, realHeight, null);
         super.paintComponent(g);

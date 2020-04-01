@@ -16,9 +16,10 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.NeutralFiguresState;
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.UiUtils;
 
-public class NeutralFigurePanel extends JComponent {
+public class NeutralFigurePanel extends JComponent implements UiMixin {
 
     private static final int PADDING_L = 9;
     private static final int PADDING_R = 11;
@@ -29,15 +30,13 @@ public class NeutralFigurePanel extends JComponent {
     private BufferedImage bimg;
     private Graphics2D g2;
 
-    private final Client client;
     private final Game game;
     private final PlayerPanelImageCache cache;
 
     private int realHeight = 1;
     private int bx = 0, by = 0;
 
-    public NeutralFigurePanel(Client client, Game game, PlayerPanelImageCache cache) {
-        this.client = client;
+    public NeutralFigurePanel(Game game, PlayerPanelImageCache cache) {
         this.game = game;
         this.cache = cache;
     }
@@ -118,7 +117,7 @@ public class NeutralFigurePanel extends JComponent {
     public void paint(Graphics g) {
         if (realHeight > 0) {
             Graphics2D parentGraphics = (Graphics2D) g;
-            parentGraphics.setColor(client.getTheme().getPlayerBoxBg());
+            parentGraphics.setColor(getTheme().getPlayerBoxBg());
             parentGraphics.fillRoundRect(0, 0, PANEL_WIDTH+CORNER_DIAMETER, realHeight, CORNER_DIAMETER, CORNER_DIAMETER);
             parentGraphics.drawImage(bimg, 0, 0, PANEL_WIDTH, realHeight, 0, 0, PANEL_WIDTH, realHeight, null);
         }

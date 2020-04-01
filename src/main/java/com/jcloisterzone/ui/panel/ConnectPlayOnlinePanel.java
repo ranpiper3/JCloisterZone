@@ -13,11 +13,12 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import com.jcloisterzone.ui.FxClient;
+import com.jcloisterzone.ui.UiMixin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.config.Config;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.view.StartView;
@@ -25,11 +26,9 @@ import com.jcloisterzone.ui.view.StartView;
 import net.miginfocom.swing.MigLayout;
 
 
-public class ConnectPlayOnlinePanel extends ThemedJPanel {
+public class ConnectPlayOnlinePanel extends ThemedJPanel implements UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-
-    private final Client client;
 
     private JTextField nickField;
     private JButton btnConnect, btnBack;
@@ -38,8 +37,7 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
     /**
      * Create the panel.
      */
-    public ConnectPlayOnlinePanel(Client client) {
-        this.client = client;
+    public ConnectPlayOnlinePanel() {
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,7 +49,7 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
             }
         };
 
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
 
@@ -78,7 +76,7 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
         btnBack.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConnectPlayOnlinePanel.this.client.mountView(new StartView(ConnectPlayOnlinePanel.this.client));
+               mountView(new StartView());
             }
         });
         add(btnBack, "cell 2 2");
@@ -93,7 +91,7 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
         if (System.getProperty("nick") != null) {
             return System.getProperty("nick");
         }
-        String name = client.getConfig().getClient_name();
+        String name = getConfig().getClient_name();
         name = name == null ? "" : name.trim();
         if (name.equals("")) name = System.getProperty("user.name");
         return name;
@@ -104,9 +102,9 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
         if (System.getProperty("nick") != null) return;
         String nick = nickField.getText().trim();
         if (nick.equals(System.getProperty("user.name"))) return;
-        Config cfg = client.getConfig();
+        Config cfg = getConfig();
         cfg.setClient_name(nick);
-        client.saveConfig();
+        saveConfig();
     }
 
     public void onWebsocketError(Exception ex) {
@@ -126,7 +124,7 @@ public class ConnectPlayOnlinePanel extends ThemedJPanel {
     private void connect() {
         try {
             String nick = nickField.getText().trim();
-            client.connectPlayOnline(nick);
+            FxClient.getInstance().connectPlayOnline(nick);
             return;
         } catch (NumberFormatException nfe) {
             message.setText( _tr("Invalid port number."));

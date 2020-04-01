@@ -69,21 +69,21 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
 
 
     public BazaarPanel(Client client, GameController gc) {
-       super(client, gc);
+       super(gc);
     }
 
     private void initComponents(GameState state) {
         noAuction = state.getBooleanValue(Rule.BAZAAR_NO_AUCTION);
 
         setOpaque(true);
-        setBackground(client.getTheme().getTransparentPanelBg());
+        setBackground(getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 0", "[grow]", ""));
 
         JLabel label;
 
         label = new ThemedJLabel(_tr("Bazaar supply"));
         label.setFont(FONT_HEADER);
-        label.setForeground(client.getTheme().getHeaderFontColor());
+        label.setForeground(getTheme().getHeaderFontColor());
         add(label, "wrap, gap 20 20 10 5");
 
         hint = new ThemedJLabel();
@@ -169,17 +169,17 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             Graphics2D g2 = (Graphics2D) g;
             BazaarItem bi = model.getSupply().get(idx);
 
-            Image img =  client.getResourceManager().getTileImage(bi.getTile().getId(), Rotation.R0).getImage();
+            Image img = getResourceManager().getTileImage(bi.getTile().getId(), Rotation.R0).getImage();
 
             if (selectedItem == idx) {
-                g2.setColor(client.getTheme().getPlayerBoxBg());
+                g2.setColor(getTheme().getPlayerBoxBg());
                 g2.fillRect(0, 0, getWidth(), getHeight());
             }
 
             g2.drawImage(img, 20, 0, 90, 90, null);
 
             if (bi.getCurrentBidder() == null && bi.getOwner() != null) {
-                Image playerImage = client.getResourceManager().getLayeredImage(
+                Image playerImage = getResourceManager().getLayeredImage(
                     new LayeredImageDescriptor(SmallFollower.class, bi.getOwner().getColors().getMeepleColor())
                 );
                 //TODO smooth image

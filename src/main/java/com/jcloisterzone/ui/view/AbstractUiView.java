@@ -5,17 +5,12 @@ import java.awt.Container;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
-import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.FxClient;
 import com.jcloisterzone.ui.EventProxyUiController;
 import com.jcloisterzone.ui.UIEventListener;
+import com.jcloisterzone.ui.UiMixin;
 
-public abstract class AbstractUiView implements UiView {
-
-    protected final Client client;
-
-    public AbstractUiView(Client client) {
-        this.client = client;
-    }
+public abstract class AbstractUiView implements UiView, UiMixin {
 
     @Override
     public boolean requestHide(UiView nextView) {
@@ -33,17 +28,13 @@ public abstract class AbstractUiView implements UiView {
 
     @Override
     public void onWebsocketError(Exception ex) {
-        client.onUnhandledWebsocketError(ex);
+        FxClient.getInstance().onUnhandledWebsocketError(ex);
     }
 
     @Override
     public void onWebsocketClose(int code, String reason, boolean remote) {
-
     }
 
-    public Client getClient() {
-        return client;
-    }
 
     public void registerChildComponents(Container root, EventProxyUiController<?> ctrl) {
         LinkedList<Component> list = new LinkedList<>();

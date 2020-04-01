@@ -16,6 +16,7 @@ import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UIEventListener;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.grid.layer.AnimationLayer;
@@ -40,9 +41,8 @@ import com.jcloisterzone.ui.view.GameView;
 
 
 @SuppressWarnings("serial")
-public class MainPanel extends JPanel implements UIEventListener {
+public class MainPanel extends JPanel implements UIEventListener, UiMixin {
 
-    private final Client client;
     private final GameView gameView;
     private final GameController gc;
     private final Game game;
@@ -55,8 +55,7 @@ public class MainPanel extends JPanel implements UIEventListener {
     private EventsOverlayLayer eventsOverlayPanel;
     private PlacementHistory placementHistoryLayer;
 
-    public MainPanel(Client client, GameView gameView, ChatPanel chatPanel) {
-        this.client = client;
+    public MainPanel(GameView gameView, ChatPanel chatPanel) {
         this.gameView = gameView;
         this.gc = gameView.getGameController();
         this.game = gc.getGame();
@@ -65,7 +64,7 @@ public class MainPanel extends JPanel implements UIEventListener {
         setLayout(new BorderLayout());
 
         controlPanel = new ControlPanel(gameView);
-        gridPanel = new GridPanel(client, gameView, controlPanel, chatPanel);
+        gridPanel = new GridPanel(gameView, controlPanel, chatPanel);
         MeepleLayer meepleLayer = new MeepleLayer(gridPanel, gc);
         TilePlacementLayer tilePlacementLayer = new TilePlacementLayer(gridPanel, gc);
         TileLayer tileLayer = new TileLayer(gridPanel, gc);

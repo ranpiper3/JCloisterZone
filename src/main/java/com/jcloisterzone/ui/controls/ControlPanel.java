@@ -32,6 +32,7 @@ import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.ui.FxClient;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Rule;
 import com.jcloisterzone.game.capability.AbbeyCapability;
@@ -42,9 +43,9 @@ import com.jcloisterzone.game.phase.BazaarPhase;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UIEventListener;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.annotations.LinkedPanel;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
@@ -55,7 +56,7 @@ import io.vavr.collection.Queue;
 import io.vavr.collection.Vector;
 import net.miginfocom.swing.MigLayout;
 
-public class ControlPanel extends JPanel implements UIEventListener {
+public class ControlPanel extends JPanel implements UIEventListener, UiMixin {
 
     private static Font FONT_PACK_SIZE = new Font(null, Font.PLAIN, 20);
 
@@ -72,7 +73,6 @@ public class ControlPanel extends JPanel implements UIEventListener {
     private static final String PASS_LABEL = _tr("Skip");
     private static final String CONFIRMATION_LABEL = _tr("Continue");
 
-    private final Client client;
     private final GameView gameView;
     private final GameController gc;
     private final Game game;
@@ -91,7 +91,6 @@ public class ControlPanel extends JPanel implements UIEventListener {
     private final Timer timer;
 
     public ControlPanel(GameView gameView) {
-        this.client = gameView.getClient();
         this.gameView = gameView;
         this.game = gameView.getGame();
         this.gc = gameView.getGameController();
@@ -120,15 +119,15 @@ public class ControlPanel extends JPanel implements UIEventListener {
         }
 
         Array<Player> players = game.getState().getPlayers().getPlayers();
-        PlayerPanelImageCache cache = new PlayerPanelImageCache(client, game);
+        PlayerPanelImageCache cache = new PlayerPanelImageCache(game);
         playerPanels = new PlayerPanel[players.length()];
 
         for (int i = 0; i < players.length(); i++) {
-            playerPanels[i] = new PlayerPanel(client, gameView, players.get(i), cache);
+            playerPanels[i] = new PlayerPanel(gameView, players.get(i), cache);
             add(playerPanels[i], "wrap, growx, gapleft 35, gapbottom 12, h pref");
         }
 
-        neutralPanel = new NeutralFigurePanel(client, game, cache);
+        neutralPanel = new NeutralFigurePanel(game, cache);
         add(neutralPanel, "wrap, growx, gapleft 35, gapbottom 12, h pref");
 
         //better be accurate and repaint just every second - TODO
@@ -143,7 +142,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
     }
 
     private void paintBackgroundBody(Graphics2D g2) {
-        g2.setColor(client.getTheme().getTransparentPanelBg());
+        g2.setColor(getTheme().getTransparentPanelBg());
         g2.fillRect(LEFT_MARGIN+LEFT_PADDING , 0, getWidth()-LEFT_MARGIN-LEFT_PADDING, getHeight());
     }
 
@@ -155,15 +154,15 @@ public class ControlPanel extends JPanel implements UIEventListener {
 
         Player player = state.getTurnPlayer();
         if (player == null) {
-            g2.setColor(client.getTheme().getTransparentPanelBg());
+            g2.setColor(getTheme().getTransparentPanelBg());
             g2.fillRect(-LEFT_PADDING , 0, LEFT_PADDING, h);
-            g2.setColor(client.getTheme().getPanelShadow());
+            g2.setColor(getTheme().getPanelShadow());
             g2.fillRect(-LEFT_PADDING-3, 0, 3, h);
         } else {
             PlayerPanel pp = playerPanels[player.getIndex()];
             int y = pp.getY() + pp.getRealHeight() / 2;
 
-            g2.setColor(client.getTheme().getTransparentPanelBg());
+            g2.setColor(getTheme().getTransparentPanelBg());
             g2.fillRect(-LEFT_PADDING , 0, LEFT_PADDING, y-ACTIVE_MARKER_SIZE);
             g2.fillRect(-LEFT_PADDING , y+ACTIVE_MARKER_SIZE, LEFT_PADDING, h-y-ACTIVE_MARKER_SIZE);
             g2.fillPolygon(
@@ -174,7 +173,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
                 new int[] { -LEFT_PADDING, 0, 0, -ACTIVE_MARKER_PADDING },
                 new int[] { y+ACTIVE_MARKER_SIZE, y+ACTIVE_MARKER_SIZE, y, y}, 4
             );
-            g2.setColor(client.getTheme().getPanelShadow());
+            g2.setColor(getTheme().getPanelShadow());
             //g2.setColors(Color.RED);
             g2.fillRect(-LEFT_PADDING-PANEL_SHADOW_WIDTH, 0, PANEL_SHADOW_WIDTH, y-ACTIVE_MARKER_SIZE);
             g2.fillRect(-LEFT_PADDING-PANEL_SHADOW_WIDTH, y+ACTIVE_MARKER_SIZE, PANEL_SHADOW_WIDTH, h-y+ACTIVE_MARKER_SIZE);
@@ -193,7 +192,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
             PlayerPanel pp = playerPanels[player.getIndex()];
             int y = pp.getY() + pp.getRealHeight() / 2;
 
-            g2.setColor(client.getTheme().getMarkerColor());
+            g2.setColor(getTheme().getMarkerColor());
 //            g2.fillPolygon(
 //                new int[] { -LEFT_PADDING-PANEL_SHADOW_WIDTH, -PANEL_SHADOW_WIDTH-ACTIVE_MARKER_PADDING, -LEFT_PADDING-PANEL_SHADOW_WIDTH},
 //                new int[] { y-ACTIVE_MARKER_SIZE, y, y+ACTIVE_MARKER_SIZE,}, 3
@@ -218,7 +217,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
 
         TilePack tilePack = game.getState().getTilePack();
         g2.setFont(FONT_PACK_SIZE);
-        g2.setColor(client.getTheme().getHeaderFontColor());
+        g2.setColor(getTheme().getHeaderFontColor());
         int packSize = tilePack.totalSize();
         g2.drawString("" + packSize, w - 42, 24);
 
@@ -283,7 +282,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
 
             if (isLastAbbeyPlacement(state)) {
                 String[] options = new String[] {_tr("Skip Abbey"), _tr("Cancel and place Abbey") };
-                int result = JOptionPane.showOptionDialog(client,
+                int result = JOptionPane.showOptionDialog(null,
                     _tr("This is your last turn. If you skip it your Abbey remain unplaced."),
                     _tr("Last chance to place the Abbey"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -424,7 +423,7 @@ public class ControlPanel extends JPanel implements UIEventListener {
                 int x = LEFT_MARGIN+LEFT_PADDING;
                 for (BazaarItem bi : supply) {
                     Tile tile = bi.getTile();
-                    Image img = client.getResourceManager().getTileImage(tile.getId(), Rotation.R0).getImage();
+                    Image img = getResourceManager().getTileImage(tile.getId(), Rotation.R0).getImage();
                     g2.drawImage(img, x, 0, 40, 40, null);
                     x += 45;
                 }

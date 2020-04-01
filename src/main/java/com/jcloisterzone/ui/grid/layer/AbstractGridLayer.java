@@ -26,10 +26,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.ImmutablePoint;
-import com.jcloisterzone.ui.UIEventListener;
+import com.jcloisterzone.ui.*;
 import com.jcloisterzone.ui.grid.DragInsensitiveMouseClickListener;
 import com.jcloisterzone.ui.grid.GridLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
@@ -37,18 +34,16 @@ import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.TileImage;
 
-public abstract class AbstractGridLayer implements GridLayer, UIEventListener {
+public abstract class AbstractGridLayer implements GridLayer, UIEventListener, UiMixin {
 
     protected boolean visible;
     protected final GridPanel gridPanel;
     protected final GameController gc;
-    protected final ConvenientResourceManager rm;
     private MouseInputListener mouseListener;
 
     public AbstractGridLayer(GridPanel gridPanel, GameController gc) {
         this.gridPanel = gridPanel;
         this.gc = gc;
-        this.rm = gc.getClient().getResourceManager();
     }
 
     private void triggerFakeMouseEvent() {
@@ -209,10 +204,6 @@ public abstract class AbstractGridLayer implements GridLayer, UIEventListener {
         return gridPanel.getTileHeight();
     }
 
-    protected Client getClient() {
-        return gridPanel.getClient();
-    }
-
     protected Game getGame() {
         return gc.getGame();
     }
@@ -278,7 +269,7 @@ public abstract class AbstractGridLayer implements GridLayer, UIEventListener {
             Location loc = fp.getLocation();
             PlacedTile pt = state.getPlacedTile(pos);
 
-            FeatureArea fa = rm.getFeatureArea(pt.getTile(), pt.getRotation(), loc).translateTo(pos);
+            FeatureArea fa = getResourceManager().getFeatureArea(pt.getTile(), pt.getRotation(), loc).translateTo(pos);
             area.add(fa.getDisplayArea());
         }
         return area;

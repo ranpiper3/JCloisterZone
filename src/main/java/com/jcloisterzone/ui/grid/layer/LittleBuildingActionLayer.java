@@ -41,9 +41,9 @@ public class LittleBuildingActionLayer extends AbstractGridLayer implements Acti
 
     public LittleBuildingActionLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
-        images.put(LittleBuilding.LB_SHED, rm.getImage("neutral/lb_shed"));
-        images.put(LittleBuilding.LB_HOUSE, rm.getImage("neutral/lb_house"));
-        images.put(LittleBuilding.LB_TOWER, rm.getImage("neutral/lb_tower"));
+        images.put(LittleBuilding.LB_SHED, getResourceManager().getImage("neutral/lb_shed"));
+        images.put(LittleBuilding.LB_HOUSE, getResourceManager().getImage("neutral/lb_house"));
+        images.put(LittleBuilding.LB_TOWER, getResourceManager().getImage("neutral/lb_tower"));
         recomputeDimenensions(getTileWidth());
     }
 

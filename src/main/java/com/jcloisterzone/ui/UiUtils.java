@@ -1,5 +1,9 @@
 package com.jcloisterzone.ui;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
 import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -66,9 +70,18 @@ public final class UiUtils {
         }
     }
 
+    @Deprecated
     public static void centerDialog(Window dialog, int width, int height) {
         dialog.setSize(width, height);
         dialog.setLocationRelativeTo(null);
+    }
+
+    public static void centerStage(Stage stage, int width, int height) {
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setWidth(width);
+        stage.setHeight(height);
+        stage.setX((primScreenBounds.getWidth() - width) / 2);
+        stage.setY((primScreenBounds.getHeight() - height) / 2);
     }
 
     public static ImageIcon scaleImageIcon(ImageIcon icon, int width, int height) {

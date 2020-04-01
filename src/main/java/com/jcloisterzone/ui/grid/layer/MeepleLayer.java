@@ -151,10 +151,10 @@ public class MeepleLayer extends AbstractGridLayer {
             }
         }
         if (fig instanceof Barn) {
-            return rm.getBarnPlacement();
+            return getResourceManager().getBarnPlacement();
         } else {
             FeaturePointer fp = ptr.asFeaturePointer();
-            return rm.getMeeplePlacement(tile.getTile(), tile.getRotation(), fp.getLocation());
+            return getResourceManager().getMeeplePlacement(tile.getTile(), tile.getRotation(), fp.getLocation());
         }
     }
 
@@ -164,7 +164,7 @@ public class MeepleLayer extends AbstractGridLayer {
             final boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
             final boolean count = fig instanceof Count;
 
-            Image image = rm.getImage("neutral/"+fig.getClass().getSimpleName().toLowerCase());
+            Image image = getResourceManager().getImage("neutral/"+fig.getClass().getSimpleName().toLowerCase());
             fi.img = image;
 
             if (mageOrWitch || count) {
@@ -182,7 +182,7 @@ public class MeepleLayer extends AbstractGridLayer {
             Color color = m.getPlayer().getColors().getMeepleColor();
             LayeredImageDescriptor lid = new LayeredImageDescriptor(m.getClass(), color);
             lid.setAdditionalLayer(getExtraDecoration(m.getClass(), fp));
-            Image image = rm.getLayeredImage(lid);
+            Image image = getResourceManager().getLayeredImage(lid);
             if (fp.getLocation() == Location.MONASTERY) {
                 image = rotate(image, 90);
             }

@@ -23,6 +23,7 @@ import com.jcloisterzone.action.TunnelAction;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.component.MultiLineLabel;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -39,7 +40,7 @@ import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 import net.miginfocom.swing.MigLayout;
 
-public class ActionPanel extends MouseTrackingComponent implements ForwardBackwardListener, RegionMouseListener {
+public class ActionPanel extends MouseTrackingComponent implements ForwardBackwardListener, RegionMouseListener, UiMixin {
 
     public static final int FAKE_ACTION_SIZE = 62;
     public static final int LINE_HEIGHT = 30;
@@ -67,11 +68,9 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
     private int imgOffset = 0;
     private boolean refreshImages, refreshMouseRegions;
 
-    private final Client client;
     private final GameView gameView;
 
     public ActionPanel(GameView gameView) {
-        this.client = gameView.getClient();
         this.gameView = gameView;
 
         Font hintFont = new Font(null, Font.ITALIC, 12);
@@ -164,10 +163,10 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         Player activePlayer = gameView.getGame().getState().getActivePlayer();
         for (int i = 0; i < actions.size(); i++) {
             selected[i] = new ImageIcon(
-                actions.get(i).getImage(client.getResourceManager(), activePlayer, true).getScaledInstance(activeSize, activeSize, Image.SCALE_SMOOTH)
+                actions.get(i).getImage(getResourceManager(), activePlayer, true).getScaledInstance(activeSize, activeSize, Image.SCALE_SMOOTH)
             ).getImage();
             deselected[i] = new ImageIcon(
-                actions.get(i).getImage(client.getResourceManager(), activePlayer, false).getScaledInstance(baseSize, baseSize, Image.SCALE_SMOOTH)
+                actions.get(i).getImage(getResourceManager(), activePlayer, false).getScaledInstance(baseSize, baseSize, Image.SCALE_SMOOTH)
             ).getImage();
         }
     }
@@ -268,7 +267,7 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
             return;
         }
 
-        g2.setColor(client.getTheme().getPlayerBoxBg());
+        g2.setColor(getTheme().getPlayerBoxBg());
         g2.fillRoundRect(0, LINE_Y, getWidth()+CORNER_DIAMETER, LINE_HEIGHT, CORNER_DIAMETER, CORNER_DIAMETER);
 
         int x = LEFT_MARGIN;

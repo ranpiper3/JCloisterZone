@@ -30,7 +30,7 @@ public class EventsOverlayLayer extends AbstractGridLayer {
             return;
         }
 
-        g2.setColor(gc.getClient().getTheme().getBoardOverlay());
+        g2.setColor(getTheme().getBoardOverlay());
 
         Area wholeGrid = new Area(new Rectangle(
            -gridPanel.getOffsetX(),

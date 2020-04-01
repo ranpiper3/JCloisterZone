@@ -16,14 +16,14 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Manifest;
 
-import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import com.jcloisterzone.ui.resources.ConvenientResourceManager;
+import com.jcloisterzone.ui.resources.PlugableResourceManager;
 import org.java_websocket.WebSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import com.jcloisterzone.AppUpdate;
@@ -31,7 +31,6 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.FileTeeStream;
 import com.jcloisterzone.VersionComparator;
 import com.jcloisterzone.config.Config;
-import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.plugin.NotAPluginException;
 import com.jcloisterzone.plugin.Plugin;
@@ -203,9 +202,9 @@ public class JCloisterZone  {
     }
 
     public void run() {
-        System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JCloisterZone");
+//        System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
+//        System.setProperty("apple.laf.useScreenMenuBar", "true");
+//        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JCloisterZone");
 
         if ("true".equals(System.getProperty("wsdebug"))) {
             WebSocketImpl.DEBUG = true;
@@ -247,31 +246,41 @@ public class JCloisterZone  {
 
         List<Plugin> plugins = loadPlugins(config);
 
-        final Client client = new Client(dataDirectory, configLoader, config, plugins);
+        FxClient.dataDirectory = dataDirectory;
+        FxClient.configLoader = configLoader;
+        FxClient.config = config;
+        FxClient.plugins = plugins;
+        FxClient.resourceManager = new ConvenientResourceManager(new PlugableResourceManager(plugins));
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                client.init();
+        FxClient.launch(FxClient.class);
 
-                if (isMac()) {
-                    Application macApplication = Application.getApplication();
-                    macApplication.setDockIconImage(new ImageIcon(Client.class.getClassLoader().getResource("sysimages/ico.png")).getImage());
-                    macApplication.addApplicationListener(new MacApplicationAdapter(client));
-                }
+        //final Client client = new Client(dataDirectory, configLoader, config, plugins);
 
-                DebugConfig debugConfig = client.getConfig().getDebug();
-                if (debugConfig != null && debugConfig.isAutostartEnabled()) {
-                    if (Boolean.TRUE.equals(debugConfig.getAutostart().getOnline())) {
-                        client.connectPlayOnline(null);
-                    } else {
-                        client.createGame();
-                    }
-                }
-            }
-        });
+        // TODO FX autostart
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                client.init();
+//
+//                if (isMac()) {
+//                    Application macApplication = Application.getApplication();
+//                    macApplication.setDockIconImage(new ImageIcon(Client.class.getClassLoader().getResource("sysimages/ico.png")).getImage());
+//                    macApplication.addApplicationListener(new MacApplicationAdapter(client));
+//                }
+//
+//                DebugConfig debugConfig = client.getConfig().getDebug();
+//                if (debugConfig != null && debugConfig.isAutostartEnabled()) {
+//                    if (Boolean.TRUE.equals(debugConfig.getAutostart().getOnline())) {
+//                        client.connectPlayOnline(null);
+//                    } else {
+//                        client.createGame();
+//                    }
+//                }
+//            }
+//        });
 
-        checkForUpdate(config, client);
+        // TODO FX check for update
+        //checkForUpdate(config, client);
     }
 
     public static void main(String[] args) {

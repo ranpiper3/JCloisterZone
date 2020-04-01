@@ -8,8 +8,8 @@ public class ChannelController extends EventProxyUiController<Channel> {
     private final Channel channel;
     private ChannelPanel channelPanel;
 
-    public ChannelController(Client client, Channel channel) {
-        super(client, channel);
+    public ChannelController(Channel channel) {
+        super(channel);
         this.channel = channel;
     }
 

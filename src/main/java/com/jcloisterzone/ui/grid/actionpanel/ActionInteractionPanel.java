@@ -8,18 +8,17 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.UiMixin;
 
-public class ActionInteractionPanel<T extends PlayerAction<?>> extends JPanel {
+public class ActionInteractionPanel<T extends PlayerAction<?>> extends JPanel implements UiMixin {
 
 	public static Font FONT_HEADER = new Font(null, Font.BOLD, 18);
 
-    protected final Client client;
     protected final GameController gc;
     private GameState state;
 
-    public ActionInteractionPanel(Client client, GameController gc) {
+    public ActionInteractionPanel(GameController gc) {
         super();
-        this.client = client;
         this.gc = gc;
     }
 

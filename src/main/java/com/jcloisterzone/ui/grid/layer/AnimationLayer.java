@@ -85,7 +85,7 @@ public class AnimationLayer extends AbstractGridLayer {
     }
 
     private Integer getScoreAnimationDuration() {
-        Integer duration = getClient().getConfig().getScore_display_duration();
+        Integer duration = getConfig().getScore_display_duration();
         return duration == null ? 10 : Math.max(duration, 1);
     }
 
@@ -94,10 +94,10 @@ public class AnimationLayer extends AbstractGridLayer {
         ImmutablePoint offset;
         //TODO (low priority probably) coupled with game by gc.getGame().getBoard().get(pos)
         if (Barn.class.equals(meepleType)) {
-            offset = rm.getBarnPlacement();
+            offset = getResourceManager().getBarnPlacement();
         } else {
             PlacedTile pt = gc.getGame().getState().getPlacedTile(fp.getPosition());
-            offset = rm.getMeeplePlacement(pt.getTile(), pt.getRotation(), fp.getLocation());
+            offset = getResourceManager().getMeeplePlacement(pt.getTile(), pt.getRotation(), fp.getLocation());
         }
         service.registerAnimation(new ScoreAnimation(
             pos,

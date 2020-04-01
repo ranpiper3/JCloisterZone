@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
+import com.jcloisterzone.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,6 @@ import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.plugin.Plugin;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.EventProxyUiController;
-import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.UIEventListener;
-import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.annotations.LinkedPanel;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
@@ -52,7 +48,7 @@ import com.jcloisterzone.ui.view.GameView;
 
 import net.miginfocom.swing.MigLayout;
 
-public class GridPanel extends JPanel implements ForwardBackwardListener, UIEventListener {
+public class GridPanel extends JPanel implements ForwardBackwardListener, UIEventListener, UiMixin {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -64,7 +60,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
     private static final Color MESSAGE_INFO = new Color(79, 146, 255, 245);
     private static final Color MESSAGE_HINT = new Color(147, 146, 155, 245);
 
-    final Client client;
     final GameView gameView;
     final GameController gc;
 
@@ -89,12 +84,11 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
     private ErrorMessagePanel errorMsg;
     private String errorCode;
 
-    public GridPanel(Client client, GameView gameView, ControlPanel controlPanel, ChatPanel chatPanel) {
+    public GridPanel(GameView gameView, ControlPanel controlPanel, ChatPanel chatPanel) {
         setDoubleBuffered(true);
         setOpaque(false);
         setLayout(new MigLayout());
 
-        this.client = client;
         this.gameView = gameView;
         this.gc = gameView.getGameController();
         this.controlPanel = controlPanel;
@@ -154,7 +148,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
     }
 
     private Plugin getBaseExpansionPlugin() {
-        for (Plugin plugin : client.getPlugins()) {
+        for (Plugin plugin : getPlugins()) {
             if (!plugin.isEnabled()) continue;
             if (plugin.isExpansionSupported(Expansion.BASIC)) {
                 return plugin;
@@ -277,9 +271,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
         });
     }
 
-    public Client getClient() {
-        return client;
-    }
 
     public int getTileWidth() {
         return tileWidth;
@@ -338,7 +329,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
                     removeInteractionPanels();
                 }
                 try {
-                    actionInteractionPanel = cls.getConstructor(Client.class, GameController.class).newInstance(client, gc);
+                    actionInteractionPanel = cls.getConstructor(GameController.class).newInstance(gc);
                     int width = Math.max(250, (int) actionInteractionPanel.getPreferredSize().getWidth());
                     int left = 275 + width;
                     int top = isEventsPanelVisible ? 36 : 0;
@@ -595,7 +586,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener, UIEven
 
     public BufferedImage takeScreenshot() {
         //calculate size of play board
-        Integer screenshotScaleValue = client.getConfig().getScreenshots().getScale();
+        Integer screenshotScaleValue = getConfig().getScreenshots().getScale();
         int screenshotScale = screenshotScaleValue == null ? ConfigLoader.DEFAULT_SCREENSHOT_SCALE : screenshotScaleValue;
         int totalWidth = screenshotScale*(right-left+1);
         int totalHeight = screenshotScale*(bottom-top+1);

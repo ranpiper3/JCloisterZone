@@ -15,32 +15,30 @@ import javax.swing.JScrollPane;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.ui.Client;
+import com.jcloisterzone.ui.UiMixin;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 
 import io.vavr.collection.List;
 import net.miginfocom.swing.MigLayout;
 
-public class DiscardedTilesDialog extends JDialog {
+public class DiscardedTilesDialog extends JDialog implements UiMixin  {
 
     public static final int ICON_SIZE = 120;
 
-    private final Client client;
     private JPanel panel;
     private JScrollPane scroll;
 
-    public DiscardedTilesDialog(Client client) {
-        super(client);
-        this.client = client;
-
+    public DiscardedTilesDialog() {
         setTitle(_tr("Discarded tiles"));
-        Point p = client.getLocation();
-        setLocation(p.x+200,p.y+150);
+        // TODO FX location
+//        Point p = client.getLocation();
+//        setLocation(p.x+200,p.y+150);
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         Container pane = getContentPane();
-        pane.setBackground(client.getTheme().getPanelBg());
+        pane.setBackground(getTheme().getPanelBg());
         pane.setLayout(new MigLayout("", "[grow]", "[][]"));
         pane.add(new ThemedJLabel(_tr("These tiles have been discarded during the game")), "wrap, growx, gapbottom 10");
 
@@ -61,7 +59,7 @@ public class DiscardedTilesDialog extends JDialog {
                 skip--;
                 continue;
             }
-            Image icon = client.getResourceManager().getTileImage(tile.getId(), Rotation.R0).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
+            Image icon = getResourceManager().getTileImage(tile.getId(), Rotation.R0).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
             panel.add(new JLabel(new ImageIcon(icon)), "");
             scroll.getViewport().setViewPosition(new Point(panel.getWidth(), 0));
         }

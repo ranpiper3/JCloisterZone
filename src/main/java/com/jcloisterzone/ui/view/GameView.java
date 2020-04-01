@@ -4,7 +4,6 @@ import static com.jcloisterzone.ui.I18nUtils._tr;
 
 import java.awt.Container;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,6 +21,10 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import com.jcloisterzone.ui.FxClient;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Alert;
 import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +36,9 @@ import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.save.SavedGame;
 import com.jcloisterzone.game.save.SavedGameParser;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.MenuBar;
-import com.jcloisterzone.ui.MenuBar.MenuItem;
+import com.jcloisterzone.ui.AppMenuBar;
+import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
 import com.jcloisterzone.ui.SavegameFileFilter;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
@@ -49,7 +51,7 @@ import com.jcloisterzone.wsio.message.WsReplayableMessage;
 
 import io.vavr.collection.List;
 
-public class GameView extends AbstractUiView implements WindowStateListener, GameChatView {
+public class GameView extends AbstractUiView implements GameChatView {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -67,9 +69,11 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
     boolean repeatLeft, repeatRight, repeatUp, repeatDown;
     boolean repeatZoomIn, repeatZoomOut;
 
+    private ChangeListener<Boolean> iconifiedListener;
+    private ChangeListener<Boolean> maximizedListener;
 
-    public GameView(Client client, GameController gc) {
-        super(client);
+
+    public GameView(GameController gc) {
         this.gc = gc;
         this.game = gc.getGame();
         gc.setGameView(this);
@@ -93,8 +97,8 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
 
     @Override
     public void show(Container pane) {
-        mainPanel = new MainPanel(client, this, chatPanel);
-        mainPanel.setBackground(client.getTheme().getMainBg());
+        mainPanel = new MainPanel(this, chatPanel);
+        mainPanel.setBackground(getTheme().getMainBg());
 
         pane.add(mainPanel);
 
@@ -105,75 +109,95 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
         timer = new Timer(true);
         timer.scheduleAtFixedRate(new KeyRepeater(), 0, 40);
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemActionListener(MenuItem.SAVE, e -> handleSave());
-        menu.setItemActionListener(MenuItem.UNDO, e -> {
-            menu.setItemEnabled(MenuItem.UNDO, false);
+        AppMenuBar menu = getMenuBar();
+        menu.setItemActionListener(MenuItemDef.SAVE, e -> handleSave());
+        menu.setItemActionListener(MenuItemDef.UNDO, e -> {
+            menu.setItemEnabled(MenuItemDef.UNDO, false);
             List<WsReplayableMessage> replay = game.getUndoHistory().head().getReplay();
             String lastMessageId = replay.isEmpty() ? "" : replay.last().getMessageId();
             gc.getConnection().send(new UndoMessage(lastMessageId));
         });
-        menu.setItemActionListener(MenuItem.ZOOM_IN, e -> zoom(2.0));
-        menu.setItemActionListener(MenuItem.ZOOM_OUT, e -> zoom(-2.0));
-        menu.setItemActionListener(MenuItem.ROTATE_BOARD, e -> rotateBoard());
-        menu.setItemActionListener(MenuItem.GAME_EVENTS, e -> {
+        menu.setItemActionListener(MenuItemDef.ZOOM_IN, e -> zoom(2.0));
+        menu.setItemActionListener(MenuItemDef.ZOOM_OUT, e -> zoom(-2.0));
+        menu.setItemActionListener(MenuItemDef.ROTATE_BOARD, e -> rotateBoard());
+        menu.setItemActionListener(MenuItemDef.GAME_EVENTS, e -> {
             JCheckBoxMenuItem ch = (JCheckBoxMenuItem) e.getSource();
             mainPanel.getGridPanel().toggleGameEvents(ch.isSelected());
         });
-        if (menu.isSelected(MenuItem.LAST_PLACEMENTS)) {
+        if (menu.isSelected(MenuItemDef.LAST_PLACEMENTS)) {
             mainPanel.getGridPanel().toggleGameEvents(true);
         }
-        menu.setItemActionListener(MenuItem.LAST_PLACEMENTS, e -> {
+        menu.setItemActionListener(MenuItemDef.LAST_PLACEMENTS, e -> {
             JCheckBoxMenuItem ch = (JCheckBoxMenuItem) e.getSource();
             mainPanel.toggleRecentHistory(ch.isSelected());
         });
-        if (menu.isSelected(MenuItem.LAST_PLACEMENTS)) {
+        if (menu.isSelected(MenuItemDef.LAST_PLACEMENTS)) {
             mainPanel.toggleRecentHistory(true);
         }
-        menu.setItemActionListener(MenuItem.FARM_HINTS, e -> {
+        menu.setItemActionListener(MenuItemDef.FARM_HINTS, e -> {
             JCheckBoxMenuItem ch = (JCheckBoxMenuItem) e.getSource();
             mainPanel.setShowFarmHints(ch.isSelected());
         });
-        if (menu.isSelected(MenuItem.FARM_HINTS)) {
+        if (menu.isSelected(MenuItemDef.FARM_HINTS)) {
             mainPanel.setShowFarmHints(true);
         }
-        menu.setItemActionListener(MenuItem.PROJECTED_POINTS, e -> {
+        menu.setItemActionListener(MenuItemDef.PROJECTED_POINTS, e -> {
             JCheckBoxMenuItem ch = (JCheckBoxMenuItem) e.getSource();
             getControlPanel().setShowProjectedPoints(ch.isSelected());
         });
-        if (menu.isSelected(MenuItem.PROJECTED_POINTS)) {
+        if (menu.isSelected(MenuItemDef.PROJECTED_POINTS)) {
             getControlPanel().setShowProjectedPoints(true);
         }
-        menu.setItemActionListener(MenuItem.DISCARDED_TILES, e -> client.getDiscardedTilesDialog().setVisible(true));
-        menu.setItemActionListener(MenuItem.GAME_SETUP, e -> showGameSetupDialog());
-        menu.setItemActionListener(MenuItem.TAKE_SCREENSHOT, e -> takeScreenshot());
-        menu.setItemActionListener(MenuItem.REPORT_BUG, e -> new BugReportDialog(gc.getReportingTool()));
-        menu.setItemActionListener(MenuItem.LEAVE_GAME, e -> gc.leaveGame());
+        menu.setItemActionListener(MenuItemDef.DISCARDED_TILES, e -> FxClient.getInstance().getDiscardedTilesDialog().setVisible(true));
+        menu.setItemActionListener(MenuItemDef.GAME_SETUP, e -> showGameSetupDialog());
+        menu.setItemActionListener(MenuItemDef.TAKE_SCREENSHOT, e -> takeScreenshot());
+        menu.setItemActionListener(MenuItemDef.REPORT_BUG, e -> new BugReportDialog(gc.getReportingTool()));
+        menu.setItemActionListener(MenuItemDef.LEAVE_GAME, e -> gc.leaveGame());
 
-        menu.setItemEnabled(MenuItem.FARM_HINTS, true);
-        menu.setItemEnabled(MenuItem.GAME_EVENTS, true);
-        menu.setItemEnabled(MenuItem.LAST_PLACEMENTS, true);
-        menu.setItemEnabled(MenuItem.PROJECTED_POINTS, true);
+        menu.setItemEnabled(MenuItemDef.FARM_HINTS, true);
+        menu.setItemEnabled(MenuItemDef.GAME_EVENTS, true);
+        menu.setItemEnabled(MenuItemDef.LAST_PLACEMENTS, true);
+        menu.setItemEnabled(MenuItemDef.PROJECTED_POINTS, true);
 
-        menu.setItemEnabled(MenuItem.REPORT_BUG, true);
-        menu.setItemEnabled(MenuItem.GAME_SETUP, true);
-        menu.setItemEnabled(MenuItem.TAKE_SCREENSHOT, true);
-        menu.setItemEnabled(MenuItem.LEAVE_GAME, true);
-        menu.setItemEnabled(MenuItem.ZOOM_IN, true);
-        menu.setItemEnabled(MenuItem.ZOOM_OUT, true);
-        menu.setItemEnabled(MenuItem.ROTATE_BOARD, true);
-        menu.setItemEnabled(MenuItem.SAVE, true);
-        menu.setItemEnabled(MenuItem.LOAD, false);
-        menu.setItemEnabled(MenuItem.NEW_GAME, false);
-        menu.setItemEnabled(MenuItem.CONNECT_P2P, false);
-        menu.setItemEnabled(MenuItem.PLAY_ONLINE, false);
+        menu.setItemEnabled(MenuItemDef.REPORT_BUG, true);
+        menu.setItemEnabled(MenuItemDef.GAME_SETUP, true);
+        menu.setItemEnabled(MenuItemDef.TAKE_SCREENSHOT, true);
+        menu.setItemEnabled(MenuItemDef.LEAVE_GAME, true);
+        menu.setItemEnabled(MenuItemDef.ZOOM_IN, true);
+        menu.setItemEnabled(MenuItemDef.ZOOM_OUT, true);
+        menu.setItemEnabled(MenuItemDef.ROTATE_BOARD, true);
+        menu.setItemEnabled(MenuItemDef.SAVE, true);
+        menu.setItemEnabled(MenuItemDef.LOAD, false);
+        menu.setItemEnabled(MenuItemDef.NEW_GAME, false);
+        menu.setItemEnabled(MenuItemDef.CONNECT_P2P, false);
+        menu.setItemEnabled(MenuItemDef.PLAY_ONLINE, false);
 
-        client.addWindowStateListener(this);
+        iconifiedListener = new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                ChatPanel chatPanel = getGridPanel().getChatPanel();
+                if (chatPanel != null) {
+                    chatPanel.stageIconified();
+                }
+            }
+        };
+        maximizedListener = new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                ChatPanel chatPanel = getGridPanel().getChatPanel();
+                if (chatPanel != null) {
+                    chatPanel.stageMaximixed();
+                }
+            }
+        };
+        getPrimaryStage().iconifiedProperty().addListener(iconifiedListener);
+        getPrimaryStage().maximizedProperty().addListener(maximizedListener);
+
     }
 
     @Override
     public boolean requestHide(UiView nextView) {
-        if (gameRunning && gc.getChannel() == null) return client.closeGame();
+        if (gameRunning && gc.getChannel() == null) return FxClient.getInstance().closeGame();
         return true;
     }
 
@@ -186,27 +210,21 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
         Connection conn = gc.getConnection();
         if (conn != null) conn.stopReconnecting();
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemEnabled(MenuItem.FARM_HINTS, false);
-        menu.setItemEnabled(MenuItem.GAME_EVENTS, false);
-        menu.setItemEnabled(MenuItem.LAST_PLACEMENTS, false);
-        menu.setItemEnabled(MenuItem.PROJECTED_POINTS, false);
-        menu.setItemEnabled(MenuItem.ZOOM_IN, false);
-        menu.setItemEnabled(MenuItem.ZOOM_OUT, false);
-        menu.setItemEnabled(MenuItem.ROTATE_BOARD, false);
-        menu.setItemEnabled(MenuItem.LEAVE_GAME, false);
-        menu.setItemEnabled(MenuItem.TAKE_SCREENSHOT, false);
-        menu.setItemEnabled(MenuItem.DISCARDED_TILES, false);
+        AppMenuBar menu = getMenuBar();
+        menu.setItemEnabled(MenuItemDef.FARM_HINTS, false);
+        menu.setItemEnabled(MenuItemDef.GAME_EVENTS, false);
+        menu.setItemEnabled(MenuItemDef.LAST_PLACEMENTS, false);
+        menu.setItemEnabled(MenuItemDef.PROJECTED_POINTS, false);
+        menu.setItemEnabled(MenuItemDef.ZOOM_IN, false);
+        menu.setItemEnabled(MenuItemDef.ZOOM_OUT, false);
+        menu.setItemEnabled(MenuItemDef.ROTATE_BOARD, false);
+        menu.setItemEnabled(MenuItemDef.LEAVE_GAME, false);
+        menu.setItemEnabled(MenuItemDef.TAKE_SCREENSHOT, false);
+        menu.setItemEnabled(MenuItemDef.DISCARDED_TILES, false);
 
-        client.removeWindowStateListener(this);
-    }
+        getPrimaryStage().iconifiedProperty().removeListener(iconifiedListener);
+        getPrimaryStage().maximizedProperty().removeListener(maximizedListener);
 
-    @Override
-    public void windowStateChanged(WindowEvent e) {
-        ChatPanel chatPanel = getGridPanel().getChatPanel();
-        if (chatPanel != null) {
-            chatPanel.windowStateChanged(e);
-        }
     }
 
     public void closeGame() {
@@ -214,16 +232,16 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
         getMainPanel().closeGame();
         getControlPanel().clearActions();
 
-        MenuBar menu = client.getJMenuBar();
-        menu.setItemEnabled(MenuItem.DISCARDED_TILES, false);
-        menu.setItemEnabled(MenuItem.UNDO, false);
-        menu.setItemEnabled(MenuItem.REPORT_BUG, false);
+        AppMenuBar menu = getMenuBar();
+        menu.setItemEnabled(MenuItemDef.DISCARDED_TILES, false);
+        menu.setItemEnabled(MenuItemDef.UNDO, false);
+        menu.setItemEnabled(MenuItemDef.REPORT_BUG, false);
 
         if (gc.getChannel() == null) {
-            menu.setItemEnabled(MenuItem.NEW_GAME, true);
-            menu.setItemEnabled(MenuItem.CONNECT_P2P, true);
-            menu.setItemEnabled(MenuItem.PLAY_ONLINE, true);
-            menu.setItemEnabled(MenuItem.LOAD, true);
+            menu.setItemEnabled(MenuItemDef.NEW_GAME, true);
+            menu.setItemEnabled(MenuItemDef.CONNECT_P2P, true);
+            menu.setItemEnabled(MenuItemDef.PLAY_ONLINE, true);
+            menu.setItemEnabled(MenuItemDef.LOAD, true);
         }
     }
 
@@ -370,39 +388,40 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
     }
 
     public void handleSave() {
-        JFileChooser fc = new JFileChooser(client.getSavesDirectory());
-        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fc.setDialogTitle(_tr("Save game"));
-        fc.setDialogType(JFileChooser.SAVE_DIALOG);
-        fc.setFileFilter(new SavegameFileFilter());
-        fc.setLocale(client.getLocale());
-        int returnVal = fc.showSaveDialog(client);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-            if (file != null) {
-                if (!file.getName().endsWith(".jcz")) {
-                    file = new File(file.getAbsolutePath() + ".jcz");
-                }
-                try (Writer writer = new FileWriter(file)) {
-                    SavedGame save = new SavedGame(game);
-                    SavedGameParser parser = new SavedGameParser("pretty".equals(getClient().getConfig().getSaved_games().getFormat()));
-                    save.setAnnotations(game.getGameAnnotations());
-                    parser.toJson(save, writer);
-                } catch (IOException ex) {
-                    logger.error(ex.getMessage(), ex);
-                    JOptionPane.showMessageDialog(client, ex.getLocalizedMessage(), _tr("Error"), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
+        // TODO FX save
+//        JFileChooser fc = new JFileChooser(client.getSavesDirectory());
+//        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//        fc.setDialogTitle(_tr("Save game"));
+//        fc.setDialogType(JFileChooser.SAVE_DIALOG);
+//        fc.setFileFilter(new SavegameFileFilter());
+//        fc.setLocale(client.getLocale());
+//        int returnVal = fc.showSaveDialog(client);
+//        if (returnVal == JFileChooser.APPROVE_OPTION) {
+//            File file = fc.getSelectedFile();
+//            if (file != null) {
+//                if (!file.getName().endsWith(".jcz")) {
+//                    file = new File(file.getAbsolutePath() + ".jcz");
+//                }
+//                try (Writer writer = new FileWriter(file)) {
+//                    SavedGame save = new SavedGame(game);
+//                    SavedGameParser parser = new SavedGameParser("pretty".equals(getClient().getConfig().getSaved_games().getFormat()));
+//                    save.setAnnotations(game.getGameAnnotations());
+//                    parser.toJson(save, writer);
+//                } catch (IOException ex) {
+//                    logger.error(ex.getMessage(), ex);
+//                    JOptionPane.showMessageDialog(client, ex.getLocalizedMessage(), _tr("Error"), JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        }
     }
 
     private void showGameSetupDialog() {
-        (new GameSetupDialog(client, gc.getGame())).setVisible(true);
+        (new GameSetupDialog(gc.getGame())).setVisible(true);
     }
 
     public void takeScreenshot() {
         GridPanel container = getGridPanel();
-        File screenshotFolder = client.getScreenshotDirectory();
+        File screenshotFolder = FxClient.getInstance().getScreenshotDirectory();
 
          //player names:
          StringBuilder players = new StringBuilder();
@@ -422,10 +441,13 @@ public class GameView extends AbstractUiView implements WindowStateListener, Gam
         try (FileOutputStream fos = new FileOutputStream(filename)) {
             BufferedImage im = container.takeScreenshot();
             ImageIO.write(im, "PNG", fos);
-            client.playSound("audio/shutter.wav");
+            getAudioManager().playSound("audio/shutter.wav");
         } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);
-            JOptionPane.showMessageDialog(client, ex.getLocalizedMessage(), _tr("Error"), JOptionPane.ERROR_MESSAGE);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(_tr("Error"));
+            alert.setContentText(ex.getLocalizedMessage());
+            alert.showAndWait();
         }
     }
 

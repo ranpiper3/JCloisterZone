@@ -37,30 +37,26 @@ import com.jcloisterzone.game.capability.TradeGoodsCapability;
 import com.jcloisterzone.game.capability.WindRoseCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.UiUtils;
+import com.jcloisterzone.ui.*;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
 import net.miginfocom.swing.MigLayout;
 
-public class GameOverPanel extends JPanel {
+public class GameOverPanel extends JPanel implements UiMixin {
 
     public static final ImageIcon COLLAPSE_ICON = UiUtils.scaleImageIcon("sysimages/chevron-left-gray.png", 20, 20);
     public static final ImageIcon EXPAND_ICON = UiUtils.scaleImageIcon("sysimages/chevron-right-gray.png", 20, 20);
 
-    private final Client client;
     private final Game game;
 
     private JLabel collapseIcon;
     private boolean collapsed;
 
-    public GameOverPanel(Client client, final GameController gc, boolean showPlayAgain) {
-        this.client = client;
+    public GameOverPanel(final GameController gc, boolean showPlayAgain) {
         this.game = gc.getGame();
 
         setOpaque(true);
-        setBackground(client.getTheme().getSemiTransparentBg());
+        setBackground(getTheme().getSemiTransparentBg());
         setLayout(new MigLayout("ins 20", "[][grow]", "[]20[]"));
 
         add(new PointStatsPanel(), "sx 2, wrap, hidemode 3");
@@ -79,7 +75,7 @@ public class GameOverPanel extends JPanel {
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    GameOverPanel.this.client.createGame(game);
+                    FxClient.getInstance().createGame(game);
                 }
             });
             add(btn, "gapleft 5, hidemode 3");
@@ -189,7 +185,7 @@ public class GameOverPanel extends JPanel {
             for (Player player : players) {
                 gridy = 0;
                 Color color = player.getColors().getMeepleColor();
-                Image img = client.getResourceManager().getLayeredImage(new LayeredImageDescriptor(SmallFollower.class, color));
+                Image img = getResourceManager().getLayeredImage(new LayeredImageDescriptor(SmallFollower.class, color));
                 Icon icon = new ImageIcon(img.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
                 add(new JLabel(icon, SwingConstants.CENTER), getSpec(gridx, gridy++));
                 add(new JLabel(player.getNick(), SwingConstants.CENTER), getSpec(gridx, gridy++));

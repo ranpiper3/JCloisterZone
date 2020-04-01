@@ -33,6 +33,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
+import com.jcloisterzone.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +52,6 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameSetup;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Rule;
-import com.jcloisterzone.ui.Client;
-import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.UIEventListener;
-import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.component.TextPrompt;
 import com.jcloisterzone.ui.component.TextPrompt.Show;
 import com.jcloisterzone.ui.gtk.ThemedJCheckBox;
@@ -68,14 +65,13 @@ import com.jcloisterzone.wsio.message.StartGameMessage;
 import io.vavr.collection.Set;
 import net.miginfocom.swing.MigLayout;
 
-public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
+public class CreateGamePanel extends ThemedJPanel implements UIEventListener, UiMixin {
 
     private static final long serialVersionUID = -8993000662700228625L;
 
     static Font FONT_RULE_SECTION = new Font(null, Font.ITALIC, 13);
     static Font FONT_PLUGIN_EXPANSION = new Font(null, Font.ITALIC, 13);
 
-    private final Client client;
     private final Game game;
     private final GameController gc;
     private boolean mutableSlots;
@@ -135,16 +131,15 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
     /**
      * Create the panel.
      */
-    public CreateGamePanel(final Client client, final GameController gc, boolean mutableSlots, PlayerSlot[] slots) {
-        this.client = client;
+    public CreateGamePanel(final GameController gc, boolean mutableSlots, PlayerSlot[] slots) {
         this.gc = gc;
         this.game = gc.getGame();
         this.mutableSlots = mutableSlots;
-        NameProvider nameProvider = new NameProvider(client.getConfig());
+        NameProvider nameProvider = new NameProvider(getConfig());
 
         setLayout(new MigLayout("", "[grow]", "[][grow]"));
         add(header = new ThemedJPanel(), "cell 0 0, growx");
-        header.setBackground(client.getTheme().getMainBg());
+        header.setBackground(getTheme().getMainBg());
         header.setLayout(new MigLayout("", "[grow]"));
 
         startGameButton = new JButton(_tr("Start game"));
@@ -190,12 +185,12 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
         }
 
         JPanel scrolled = new ThemedJPanel();
-        scrolled.setBackground(client.getTheme().getMainBg());
+        scrolled.setBackground(getTheme().getMainBg());
         scrolled.setLayout(new MigLayout("", "[][grow][grow]", "[grow]"));
 
 
         playersPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             playersPanel.setBorder(new TitledBorder(null, _tr("Players"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
         playersPanel.setLayout(new MigLayout("", "[grow]", ""));
@@ -203,13 +198,13 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
         if (mutableSlots) {
             JLabel hint = new ThemedJLabel(_tr("Click twice on a slot button to add a computer player."));
             hint.setFont(new Font(null, Font.ITALIC, 11));
-            hint.setForeground(client.getTheme().getHintColor());
+            hint.setForeground(getTheme().getHintColor());
             playersPanel.add(hint, "aligny bottom, gapbottom 5, wrap");
         }
 
         for (PlayerSlot slot : slots) {
             if (slot != null) {
-                CreateGamePlayerPanel panel = new CreateGamePlayerPanel(client, gc, mutableSlots, slot, slots);
+                CreateGamePlayerPanel panel = new CreateGamePlayerPanel(gc, mutableSlots, slot, slots);
                 panel.setNameProvider(nameProvider);
                 playersPanel.add(panel, "wrap");
             }
@@ -225,13 +220,13 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
         scrolled.add(playersPanel, "cell 0 0, grow");
 
         expansionPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             expansionPanel.setBorder(new TitledBorder(null, _tr("Expansions"),
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
 
         TilePackBuilder tilePackBuilder = new TilePackBuilder();
-        tilePackBuilder.setConfig(client.getConfig());
+        tilePackBuilder.setConfig(getConfig());
 
         expansionPanel.setLayout(new MigLayout("gapy 1", "[][right]", "[]"));
         for (ExpansionType expType: ExpansionType.values()) {
@@ -244,7 +239,7 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
         scrolled.add(expansionPanel, "cell 1 0,grow");
 
         rulesPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             rulesPanel.setBorder(new TitledBorder(null, _tr("Rules"),
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
@@ -276,7 +271,7 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
 
     private JPanel createClockPanel() {
         JPanel clockPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             clockPanel.setBorder(new TitledBorder(null, _tr("Clock"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
         clockPanel.setLayout(new MigLayout("", "[][][]", ""));
@@ -324,7 +319,7 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
 
     private JPanel createPresetPanel() {
         JPanel presetPanel = new ThemedJPanel();
-        if (!client.getTheme().isDark()) {
+        if (!getTheme().isDark()) {
             presetPanel.setBorder(new TitledBorder(null, _tr("Presets"),
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
@@ -399,9 +394,9 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
                     profile = (Preset) item;
                     profile.setConfig(createCurrentConfig());
                 }
-                Config config = client.getConfig();
+                Config config = getConfig();
                 config.getPresets().put(profile.getName(), profile.getConfig());
-                client.saveConfig();
+                saveConfig();
                 updatePresetButtons(presets.getSelectedItem());
             }
         });
@@ -418,9 +413,9 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
                 if (item instanceof Preset) {
                     Preset preset = (Preset) item;
                     presets.removeItem(preset);
-                    Config config = client.getConfig();
+                    Config config = getConfig();
                     config.getPresets().remove(preset.getName());
-                    client.saveConfig();
+                    saveConfig();
                     presets.setSelectedItem("");
                     updatePresetButtons("");
                 }
@@ -495,7 +490,7 @@ public class CreateGamePanel extends ThemedJPanel implements UIEventListener {
     }
 
     private Preset[] getPresets() {
-        Map<String, PresetConfig> presetCfg = client.getConfig().getPresets();
+        Map<String, PresetConfig> presetCfg = getConfig().getPresets();
         if (presetCfg == null) {
             return new Preset[0];
         }
