@@ -39,7 +39,8 @@ public class HelpDialog extends JDialog {
         contentPanel.setBounds(0, 0, 480, 30);
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPanel.setLayout(new BorderLayout());
-        getContentPane().add(new HelpPanel());
+        // TODO FX help is already FX
+        // getContentPane().add(new HelpPanel());
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setResizable(false);

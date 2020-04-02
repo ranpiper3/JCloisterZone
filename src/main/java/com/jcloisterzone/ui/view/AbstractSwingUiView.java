@@ -10,30 +10,14 @@ import com.jcloisterzone.ui.EventProxyUiController;
 import com.jcloisterzone.ui.UIEventListener;
 import com.jcloisterzone.ui.UiMixin;
 
-public abstract class AbstractUiView implements UiView, UiMixin {
-
-    @Override
-    public boolean requestHide(UiView nextView) {
-        return true;
-    }
-
-    @Override
-    public void hide(UiView nextView) {
-    }
+public abstract class AbstractSwingUiView implements SwingUiView, UiMixin {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         return false;
     }
 
-    @Override
-    public void onWebsocketError(Exception ex) {
-        FxClient.getInstance().onUnhandledWebsocketError(ex);
-    }
 
-    @Override
-    public void onWebsocketClose(int code, String reason, boolean remote) {
-    }
 
 
     public void registerChildComponents(Container root, EventProxyUiController<?> ctrl) {

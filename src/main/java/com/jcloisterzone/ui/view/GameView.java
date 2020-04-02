@@ -4,13 +4,10 @@ import static com.jcloisterzone.ui.I18nUtils._tr;
 
 import java.awt.Container;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
@@ -18,8 +15,6 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import com.jcloisterzone.ui.FxClient;
 import javafx.beans.value.ChangeListener;
@@ -34,12 +29,9 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.bugreport.BugReportDialog;
 import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.save.SavedGame;
-import com.jcloisterzone.game.save.SavedGameParser;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.AppMenuBar;
 import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
-import com.jcloisterzone.ui.SavegameFileFilter;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.dialog.GameSetupDialog;
@@ -51,7 +43,7 @@ import com.jcloisterzone.wsio.message.WsReplayableMessage;
 
 import io.vavr.collection.List;
 
-public class GameView extends AbstractUiView implements GameChatView {
+public class GameView extends AbstractSwingUiView implements GameChatView {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 

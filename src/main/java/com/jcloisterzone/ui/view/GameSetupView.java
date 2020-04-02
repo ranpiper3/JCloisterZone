@@ -23,7 +23,7 @@ import com.jcloisterzone.ui.panel.CreateGamePanel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class GameSetupView extends AbstractUiView implements GameChatView {
+public class GameSetupView extends AbstractSwingUiView implements GameChatView {
 
     private final GameController gc;
     private final Game game;

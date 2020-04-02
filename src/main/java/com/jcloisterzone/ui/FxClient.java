@@ -10,9 +10,7 @@ import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
 import com.jcloisterzone.ui.gtk.MenuFix;
 import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.theme.Theme;
-import com.jcloisterzone.ui.view.GameView;
-import com.jcloisterzone.ui.view.StartView;
-import com.jcloisterzone.ui.view.UiView;
+import com.jcloisterzone.ui.view.*;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.WebSocketConnection;
 import com.jcloisterzone.wsio.server.SimpleServer;
@@ -24,8 +22,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.java_websocket.WebSocket;
@@ -64,8 +60,9 @@ public class FxClient extends Application {
     private AudioManager audioManger;
 
     private Stage primaryStage;
-    private SwingNode swingNode;
+    private BorderPane rootPane;
     private AppMenuBar menuBar;
+    private SwingNode swingNode;
 
     private UiView view;
     private Theme theme;
@@ -340,16 +337,15 @@ public class FxClient extends Application {
         initWindowSize();
         primaryStage.setTitle(BASE_TITLE);
 
-        BorderPane root = new BorderPane();
-        root.setTop(menuBar = new AppMenuBar(this));
+        rootPane = new BorderPane();
+        rootPane.setTop(menuBar = new AppMenuBar(this));
 
         swingNode = new SwingNode();
-        root.setCenter(swingNode);
-
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
 
         mountView(new StartView());
+
+        primaryStage.setScene(new Scene(rootPane));
+        primaryStage.show();
     }
 
     void resetWindowIcon() {
@@ -433,20 +429,21 @@ public class FxClient extends Application {
             }
         }
 
-        SwingUtilities.invokeLater(() -> {
-            JPanel panel = new JPanel();
-            swingNode.setContent(panel);
-            view.show(panel);
+        if (view instanceof SwingUiView) {
+            rootPane.setCenter(swingNode);
+
+            SwingUtilities.invokeLater(() -> {
+                JPanel panel = new JPanel();
+                swingNode.setContent(panel);
+                ((SwingUiView) view).show(panel);
+                this.view = view;
+                logger.info("{} mounted", view.getClass().getSimpleName());
+            });
+        } else {
+            rootPane.setCenter(((FxUiView)view).show());
             this.view = view;
             logger.info("{} mounted", view.getClass().getSimpleName());
-        });
-
-
-//        cleanContentPane();
-//        view.show(getContentPane());
-//        getContentPane().setVisible(true);
-//        this.view = view;
-//        logger.info("{} mounted", view.getClass().getSimpleName());
+        }
         return true;
     }
 

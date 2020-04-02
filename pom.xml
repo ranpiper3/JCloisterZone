@@ -50,6 +50,11 @@
 
         <dependency>
             <groupId>com.miglayout</groupId>
+            <artifactId>miglayout-javafx</artifactId>
+            <version>5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.miglayout</groupId>
             <artifactId>miglayout-swing</artifactId>
             <version>5.2</version>
         </dependency>
@@ -57,11 +62,6 @@
             <groupId>com.googlecode.gettext-commons</groupId>
             <artifactId>gettext-commons</artifactId>
             <version>0.9.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.apple</groupId>
-            <artifactId>AppleJavaExtensions</artifactId>
-            <version>1.4</version>
         </dependency>
 
         <!-- test depencies -->

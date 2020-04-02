@@ -24,8 +24,6 @@ import org.java_websocket.WebSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
 import com.jcloisterzone.AppUpdate;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.FileTeeStream;
@@ -202,10 +200,6 @@ public class JCloisterZone  {
     }
 
     public void run() {
-//        System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
-//        System.setProperty("apple.laf.useScreenMenuBar", "true");
-//        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JCloisterZone");
-
         if ("true".equals(System.getProperty("wsdebug"))) {
             WebSocketImpl.DEBUG = true;
         }
@@ -285,31 +279,5 @@ public class JCloisterZone  {
 
     public static void main(String[] args) {
         (new JCloisterZone()).run();
-    }
-
-    static class MacApplicationAdapter extends ApplicationAdapter {
-        private final Client client;
-
-        public MacApplicationAdapter(Client client) {
-            this.client = client;
-        }
-
-        @Override
-        public void handleAbout(ApplicationEvent ev) {
-            ev.setHandled(true);
-            client.showAboutDialog();
-        }
-
-        @Override
-        public void handleQuit(ApplicationEvent ev) {
-            ev.setHandled(true);
-            client.handleQuit();
-        }
-
-        @Override
-        public void handlePreferences(ApplicationEvent ev) {
-            ev.setHandled(true);
-            client.showPreferncesDialog();
-        }
     }
 }

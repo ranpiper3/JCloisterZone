@@ -9,7 +9,7 @@ import com.jcloisterzone.ui.AppMenuBar.MenuItemDef;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.panel.ChannelPanel;
 
-public class ChannelView extends AbstractUiView {
+public class ChannelView extends AbstractSwingUiView {
 
     private final ChannelController cc;
 

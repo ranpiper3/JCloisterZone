@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import com.jcloisterzone.ui.panel.BackgroundPanel;
 import com.jcloisterzone.ui.panel.ConnectPlayOnlinePanel;
 
-public class ConnectPlayOnlineView extends AbstractUiView  {
+public class ConnectPlayOnlineView extends AbstractSwingUiView {
 
     private ConnectPlayOnlinePanel panel;
 

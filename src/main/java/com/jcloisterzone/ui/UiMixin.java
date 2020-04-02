@@ -4,6 +4,7 @@ import com.jcloisterzone.config.Config;
 import com.jcloisterzone.plugin.Plugin;
 import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.theme.Theme;
+import com.jcloisterzone.ui.view.SwingUiView;
 import com.jcloisterzone.ui.view.UiView;
 import javafx.stage.Stage;
 

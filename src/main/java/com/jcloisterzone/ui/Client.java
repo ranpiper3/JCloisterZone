@@ -73,7 +73,7 @@ import com.jcloisterzone.ui.resources.PlugableResourceManager;
 import com.jcloisterzone.ui.theme.Theme;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.ui.view.StartView;
-import com.jcloisterzone.ui.view.UiView;
+import com.jcloisterzone.ui.view.SwingUiView;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.WebSocketConnection;
 import com.jcloisterzone.wsio.server.SimpleServer;
@@ -92,7 +92,7 @@ public class Client extends JFrame {
     private final ConvenientResourceManager resourceManager;
     private final List<Plugin> plugins;
 
-    private UiView view;
+    private SwingUiView view;
     private Theme theme;
 
     //TODO move to GameView
@@ -123,7 +123,7 @@ public class Client extends JFrame {
         return instance;
     }
 
-    public boolean mountView(UiView view) {
+    public boolean mountView(SwingUiView view) {
         if (this.view != null) {
             if (this.view.requestHide(view)) {
                 this.view.hide(view);
@@ -139,7 +139,7 @@ public class Client extends JFrame {
         return true;
     }
 
-    public UiView getView() {
+    public SwingUiView getView() {
         return view;
     }
 

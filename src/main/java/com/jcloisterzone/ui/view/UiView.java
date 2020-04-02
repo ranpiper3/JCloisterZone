@@ -1,16 +1,19 @@
 package com.jcloisterzone.ui.view;
 
-import java.awt.Container;
-import java.awt.event.KeyEvent;
+import com.jcloisterzone.ui.FxClient;
 
 public interface UiView {
 
-    void show(Container pane);
-    boolean requestHide(UiView nextView);
-    void hide(UiView nextView);
+    default boolean requestHide(UiView nextView) {
+        return true;
+    }
+    default void hide(UiView nextView) {
+    }
 
-    boolean dispatchKeyEvent(KeyEvent e);
+    default void onWebsocketError(Exception ex) {
+        FxClient.getInstance().onUnhandledWebsocketError(ex);
+    }
 
-    void onWebsocketError(Exception ex);
-    void onWebsocketClose(int code, String reason, boolean remote);
+    default void onWebsocketClose(int code, String reason, boolean remote) {
+    }
 }
