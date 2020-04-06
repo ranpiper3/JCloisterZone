@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,7 +31,7 @@ public class StartView implements FxUiView {
     private StartPanel startPanel;
 
     @Override
-    public Node show() {
+    public Node show() throws IOException {
         AppMenuBar menu = FxClient.getInstance().getMenuBar();
         menu.setItemEnabled(MenuItemDef.DISCONNECT, false);
         menu.setItemEnabled(MenuItemDef.SAVE, false);

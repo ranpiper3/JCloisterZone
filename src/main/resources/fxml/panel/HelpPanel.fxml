@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<VBox spacing="7.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+       <TextFlow>
+           <children>
+               <Text text="Use " />
+               <Text style="-fx-font-weight: bold" text="A" />
+               <Text text=", " />
+               <Text style="-fx-font-weight: bold" text="S" />
+               <Text text=", " />
+               <Text style="-fx-font-weight: bold" text="W" />
+               <Text text=", " />
+               <Text style="-fx-font-weight: bold" text="D" />
+               <Text text=" or " />
+               <Text style="-fx-font-weight: bold" text="cursor" />
+               <Text text=" keys to scroll the board." />
+           </children>
+       </TextFlow>
+       <TextFlow>
+           <children>
+               <Text text="Rotate a tile by " />
+               <Text style="-fx-font-weight: bold" text="Tab" />
+               <Text text=" key or " />
+               <Text style="-fx-font-weight: bold" text="right" />
+               <Text text=" mouse click. Place it by " />
+               <Text style="-fx-font-weight: bold" text="left" />
+               <Text text=" click." />
+           </children>
+       </TextFlow>
+       <TextFlow>
+           <children>
+               <Text text="When tile is placed use " />
+               <Text style="-fx-font-weight: bold" text="Tab" />
+               <Text text=" or " />
+               <Text style="-fx-font-weight: bold" text="right" />
+               <Text text=" click again to select appropriate action." />
+           </children>
+       </TextFlow>
+       <TextFlow>
+           <children>
+               <Text text="Alternativelly you can pass with " />
+               <Text style="-fx-font-weight: bold" text="Enter" />
+               <Text text=" or " />
+               <Text style="-fx-font-weight: bold" text="Space" />
+               <Text text=" to play no action." />
+           </children>
+       </TextFlow>
+       <TextFlow>
+           <children>
+               <Text text="Press " />
+               <Text style="-fx-font-weight: bold" text="F" />
+               <Text text=" to toggle farm hints or " />
+               <Text style="-fx-font-weight: bold" text="X" />
+               <Text text=" to see last placed tiles." />
+           </children>
+       </TextFlow>
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</VBox>

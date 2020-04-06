@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -440,9 +441,13 @@ public class FxClient extends Application {
                 logger.info("{} mounted", view.getClass().getSimpleName());
             });
         } else {
-            rootPane.setCenter(((FxUiView)view).show());
-            this.view = view;
-            logger.info("{} mounted", view.getClass().getSimpleName());
+            try {
+                rootPane.setCenter(((FxUiView) view).show());
+                this.view = view;
+                logger.info("{} mounted", view.getClass().getSimpleName());
+            } catch (IOException e) {
+                logger.error("Unable to mount view", e);
+            }
         }
         return true;
     }

@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -25,6 +26,8 @@ import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.view.ConnectP2PView;
 import com.jcloisterzone.ui.view.ConnectPlayOnlineView;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -36,12 +39,12 @@ public class StartPanel extends MigPane implements UiMixin {
 
     static Font FONT_LARGE_BUTTON = new Font(null, Font.PLAIN, 25);
 
-    private HelpPanel helpPanel;
+    // private HelpPanel helpPanel;
 
     /**
      * Create the panel.
      */
-    public StartPanel() {
+    public StartPanel() throws IOException {
         super("", "[center,grow]20[center,grow]", "[]20[]10[]");
 //        if (!getTheme().isDark()) { //HACK
 //            setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -58,7 +61,10 @@ public class StartPanel extends MigPane implements UiMixin {
         lblNewLabel.setGraphic(new ImageView(new Image(imageResource)));
 
         add(lblNewLabel, "span 2, wrap, center");
-        helpPanel = new HelpPanel();
+
+        Node helpPanel = FXMLLoader.load(getClass().getResource("/fxml/panel/HelpPanel.fxml"));
+
+        // helpPanel = new HelpPanel();
         add(helpPanel, "span 2, wrap, grow, gap 30 30");
 
         MigPane playHostedPanel = new MigPane("", "[grow,center]", "20[40px]20[grow]");
@@ -116,8 +122,10 @@ public class StartPanel extends MigPane implements UiMixin {
 
     }
 
+    @Deprecated
     public HelpPanel getHelpPanel() {
-        return helpPanel;
+        //return helpPanel;
+        return null;
     }
 
 }
