@@ -5,6 +5,7 @@ import org.tbee.javafx.scene.layout.MigPane;
 
 import static com.jcloisterzone.ui.I18nUtils._tr;
 
+@Deprecated
 public class HelpPanel extends MigPane {
 
     public HelpPanel() {

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="280.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitHeight="135.0" fitWidth="465.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@/sysimages/jcloisterzone.png" />
+         </image>
+         <VBox.margin>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </VBox.margin>
+      </ImageView>
+      <fx:include source="./HelpPanel.fxml" />
+      <HBox />
+      <AnchorPane style="-fx-border-color: black">
+         <children>
+            <Label layoutX="1.0" prefHeight="104.0" prefWidth="491.0" text="Create a new game or continue a previously saved one. A game will be hosted on your computer and other players may connect during game set up. You can also play only against any number of computer players." wrapText="true" />
+            <Button fx:id="startGameButton" layoutX="39.0" layoutY="88.0" mnemonicParsing="false" text="New Game">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Label layoutX="221.0" layoutY="105.0" text="or" />
+            <Button layoutX="283.0" layoutY="88.0" mnemonicParsing="false" text="Load Game">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>
