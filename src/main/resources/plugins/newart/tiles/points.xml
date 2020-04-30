@@ -108,6 +108,9 @@
     <point feature="CITY" cx="250" cy="100">
         <apply>AM.CCc+ N</apply>
     </point>
+    <point feature="CITY" cx="250" cy="500">
+        <apply>AM.CCcc+ WE</apply>
+    </point>
     <point feature="CITY" cx="450" cy="500" baseLocation="W">
         <apply>AM.C!+ W</apply>
     </point>
@@ -129,6 +132,9 @@
         <apply>IC.CCCC N</apply>
         <apply>TB.RC N</apply>
     </point>
+    <point feature="CITY" cx="500" cy="900">
+        <apply>AM.CCcc+ NS</apply>
+    </point>
     <point feature="CITY" cx="750" cy="500">
         <apply>AM.CCc+ WE</apply>
     </point>
@@ -147,6 +153,9 @@
     </point>
     <point feature="FARM" cx="250" cy="100" baseLocation="NL">
         <apply>TB.CcR!.w EL</apply>
+    </point>
+    <point feature="FARM" cx="250" cy="210">
+        <apply>AM.CCcc+ INNER_FARM</apply>
     </point>
     <point feature="FARM" cx="750" cy="80" baseLocation="NR">
         <apply>KR.CcRR! ER</apply>
