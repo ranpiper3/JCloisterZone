@@ -34,6 +34,8 @@
         <apply>TB.CcR!.w E</apply>
         <apply>TB.CRcR.w S</apply>
         <apply>TB.CccR.w S</apply>
+        <apply>AM.LRRRR W</apply>
+        <apply>AM.LRRRR E</apply>
     </point>
 
     <point feature="ROAD" cx="130" cy="672">
@@ -55,6 +57,9 @@
     </point>
     <point feature="ROAD" cx="457" cy="860">
         <apply>BA.CcRr SE</apply>
+    </point>
+    <point feature="ROAD" cx="475" cy="760">
+        <apply>AM.CRr SE</apply>
     </point>
     <point feature="ROAD" cx="500" cy="150">
         <apply>IC.CRcR+ N</apply>
@@ -101,6 +106,9 @@
     <point feature="ROAD" cx="815" cy="575">
         <apply>R1.RIrI WE</apply>
     </point>
+    <point feature="ROAD" cx="500" cy="160">
+        <apply>AM.CRcr+ NS</apply>
+    </point>
 
     <point feature="CITY" cx="150" cy="500">
         <apply>R2.CIcI WE</apply>
@@ -124,6 +132,7 @@
         <apply>TB.CcRC.c S</apply>
         <apply>TB.CcRC.g S</apply>
         <apply>R2.CIRI N</apply>
+        <apply>AM.CCRR W</apply>
     </point>
     <point feature="CITY" cx="500" cy="140" baseLocation="N">
         <apply>IC.CCc+ S</apply>
@@ -137,6 +146,7 @@
     </point>
     <point feature="CITY" cx="750" cy="500">
         <apply>AM.CCc+ WE</apply>
+        <apply>AM.CRcr+ WE</apply>
     </point>
     <point feature="CITY" cx="820" cy="450">
         <apply>KR.CCcc WE</apply>
@@ -242,6 +252,9 @@
     </point>
     <point feature="FARM" cx="750" cy="750">
         <apply>R2.II WR.NL.NR.EL.ER.SL</apply>
+    </point>
+    <point feature="FARM" cx="750" cy="840">
+        <apply>AM.CRcr+ SL.SR</apply>
     </point>
     <point feature="FARM" cx="800" cy="200">
         <apply>BA.L NL.NR.EL.ER.SL.SR.WL.WR</apply>
