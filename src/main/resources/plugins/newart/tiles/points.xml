@@ -45,12 +45,18 @@
     <point feature="ROAD" cx="297" cy="580">
         <apply>IC.RFr.i WE</apply>
     </point>
+    <point feature="ROAD" cx="320" cy="600">
+        <apply>AM.RC W</apply>
+    </point>
     <point feature="ROAD" cx="390" cy="405">
         <apply>BA.Rr SW</apply>
     </point>
     <point feature="ROAD" cx="405" cy="802">
         <apply>TB.RRC S</apply>
         <apply>TB.RRrr NS</apply>
+    </point>
+    <point feature="ROAD" cx="445" cy="807">
+        <apply>AM.R S</apply>
     </point>
     <point feature="ROAD" cx="450" cy="870">
         <apply>IC.CcRr+.i SE</apply>
@@ -85,6 +91,9 @@
     <point feature="ROAD" cx="590" cy="580">
         <apply>BA.CRr SE</apply>
     </point>
+    <point feature="ROAD" cx="580" cy="535">
+        <apply>AM.RrC SW</apply>
+    </point>
     <point feature="ROAD" cx="642" cy="857">
         <apply>TB.LRRR S</apply>
     </point>
@@ -109,6 +118,7 @@
     <point feature="ROAD" cx="500" cy="160">
         <apply>AM.CRcr+ NS</apply>
     </point>
+
 
     <point feature="CITY" cx="150" cy="500">
         <apply>R2.CIcI WE</apply>
@@ -169,6 +179,7 @@
     </point>
     <point feature="FARM" cx="750" cy="80" baseLocation="NR">
         <apply>KR.CcRR! ER</apply>
+        <apply>AM.RrC WR</apply>
     </point>
     <point feature="FARM" cx="500" cy="100" baseLocation="NL.NR">
         <apply>BA.CFc NL.NR</apply>
@@ -252,6 +263,7 @@
     </point>
     <point feature="FARM" cx="750" cy="750">
         <apply>R2.II WR.NL.NR.EL.ER.SL</apply>
+        <apply>AM.R NL.NR.EL.ER.SL.SR.WL.WR</apply>
     </point>
     <point feature="FARM" cx="750" cy="840">
         <apply>AM.CRcr+ SL.SR</apply>
@@ -285,6 +297,7 @@
     <point feature="FARM" cx="900" cy="500">
         <apply>IC.C! EL.ER</apply>
     </point>
+
 
     <point feature="QUARTER" cx="-600" cy="-150">
         <apply>CO.7 QUARTER_CATHEDRAL</apply>
